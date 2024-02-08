@@ -1,3 +1,4 @@
+# This is based on `LCCDE_IDS_GlobeCom22.ipynb`
 import warnings 
 warnings.filterwarnings("ignore")
 import pandas as pd
@@ -15,6 +16,7 @@ from statistics import mode
 from imblearn.over_sampling import SMOTE
 
 
+# load the data
 df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
 
 print(df)
@@ -59,7 +61,7 @@ sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
 plt.ylabel('y_true')
 plt.title('lightgbm confusion matrix')
-plt.savefig('lightgbm_confusion_matrix.png')
+plt.savefig('./lccde/lightgbm_confusion_matrix.png')
 
 
 # Train the XGBoost algorithm
@@ -87,7 +89,7 @@ sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
 plt.ylabel('y_true')
 plt.title('xgboost confusion matrix')
-plt.savefig('xgboost_confusion_matrix.png')
+plt.savefig('./lccde/xgboost_confusion_matrix.png')
 
 
 # Train the CatBoost algorithm
@@ -112,7 +114,7 @@ sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
 plt.ylabel('y_true')
 plt.title('catboost confusion matrix')
-plt.savefig('catboost_confusion_matrix.png')
+plt.savefig('./lccde/catboost_confusion_matrix.png')
 
 
 
@@ -210,3 +212,4 @@ def LCCDE(X_test, y_test, m1, m2, m3):
         yt.append(yi)
         yp.append(y_pred) # Save the predicted classes for all tested samples
         return yt, yp
+
