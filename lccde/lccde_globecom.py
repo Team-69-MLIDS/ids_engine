@@ -36,11 +36,9 @@ pd.Series(y_train).value_counts()
 smote=SMOTE(n_jobs=-1, sampling_strategy={2:1000,4:1000})
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
-print(X_train, y_train)
 
 ## Training three base learners lightgbm, xgboost, catboost
 
-# %%time
 # Train the LightGBM algorithm
 import lightgbm as lgb
 lg = lgb.LGBMClassifier()
@@ -213,3 +211,13 @@ def LCCDE(X_test, y_test, m1, m2, m3):
         yp.append(y_pred) # Save the predicted classes for all tested samples
         return yt, yp
 
+# Implementing LCCDE
+yt, yp = LCCDE(X_test, y_test, m1 = lg, m2 = xg, m3 = cb)
+print(yt, yp)
+
+# The performance of the proposed lCCDE model,
+print('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
+print('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted'))),
+print('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
+print('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
+print('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))

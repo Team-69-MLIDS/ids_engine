@@ -1,3 +1,6 @@
+### This one does not work
+### copy and pasted the code directly from the Tree-based notebook and it gives errors 
+### ignoring for now
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -51,6 +54,8 @@ df = df.fillna(0)
 
 
 # split train set and test set
+# this is different from what is used in the *working*
+# LCCDE one
 labelencoder = LabelEncoder()
 df.iloc[:, -1] = labelencoder.fit_transform(df.iloc[:, -1])
 X = df.drop(['Label'],axis=1).values 
@@ -58,21 +63,27 @@ y = df.iloc[:, -1].values.reshape(-1,1)
 y=np.ravel(y)
 X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 0.8, test_size = 0.2, random_state = 0,stratify = y)
 
-print(X_train.shape)
-print(pd.Series(y_train).value_counts())
+# split train set and test set
+### *THIS* should work
+# X = df.drop(['Label'],axis=1)
+# y = df['Label']
+# X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 0.8, test_size = 0.2, random_state = 0) #shuffle=False
+# print(X_train, X_test, y_train, y_test)
+# print(X_train.shape)
+# print(pd.Series(y_train).value_counts())
 
 #oversample with smote
 from imblearn.over_sampling import SMOTE
 smote=SMOTE(n_jobs=-1,sampling_strategy={4:1500}) # Create 1500 samples for the minority class "4"
 
-print(y_train.astype(float))
-X_train, y_train = smote.fit_resample(X_train, y_train.astype(float))
+# this does not work!
+X_train, y_train = smote.fit_resample(X_train, y_train)
 
 # Decision tree training and prediction
 dt = DecisionTreeClassifier(random_state = 0)
 dt.fit(X_train,y_train) 
-dt_score=dt.score(X_test,y_test)
-y_predict=dt.predict(X_test)
+dt_score=dt.score(X_train,y_test)
+y_predict=dt.predict(X_train)
 y_true=y_test
 print('Accuracy of DT: '+ str(dt_score))
 precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
