@@ -14,6 +14,7 @@
 
 # Get started
 - `git clone https://github.com/Team-69-MLIDS/ids_engine.git`
+- `git checkout library`
 - `cd ids_engine`
 - `virtualenv -p <python path> venv` <python path> must point to a python 3.11 binary (eg. /usr/bin/python for linux users with their system python version @ 3.11)
 - `chmod +x ./venv/bin/activate` to make the venv activation script executable if it is not already
