@@ -1,6 +1,8 @@
 from flask import Flask
 import mariadb
 import sys
+
+from mariadb.cursors import Cursor
 import ids
 
 # Connect to MariaDB Platform
@@ -19,7 +21,7 @@ except mariadb.Error as e:
     sys.exit(1)
 
 # Get Cursor
-cur = conn.cursor()
+cur: Cursor = conn.cursor()
 app = Flask("idsendpoint")
 
 @app.route('/')

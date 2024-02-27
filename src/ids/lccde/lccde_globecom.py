@@ -59,7 +59,7 @@ sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
 plt.ylabel('y_true')
 plt.title('lightgbm confusion matrix')
-plt.savefig('./lccde/lightgbm_confusion_matrix.png')
+plt.savefig('./lightgbm_confusion_matrix.png')
 
 
 # Train the XGBoost algorithm
@@ -87,7 +87,7 @@ sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
 plt.ylabel('y_true')
 plt.title('xgboost confusion matrix')
-plt.savefig('./lccde/xgboost_confusion_matrix.png')
+plt.savefig('./xgboost_confusion_matrix.png')
 
 
 # Train the CatBoost algorithm
@@ -112,7 +112,7 @@ sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
 plt.ylabel('y_true')
 plt.title('catboost confusion matrix')
-plt.savefig('./lccde/catboost_confusion_matrix.png')
+plt.savefig('./catboost_confusion_matrix.png')
 
 
 
