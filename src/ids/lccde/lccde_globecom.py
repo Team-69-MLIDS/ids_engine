@@ -107,6 +107,7 @@ cb_f1=f1_score(y_test, y_pred, average=None)
 
 # Plot the confusion matrix
 cm=confusion_matrix(y_test,y_pred)
+print('catboost CM', cm)
 f,ax=plt.subplots(figsize=(5,5))
 sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
 plt.xlabel('y_pred')
