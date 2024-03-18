@@ -1,76 +1,76 @@
-lib,arg_name,default,description
-xgboost,n_estimators,No default,Number of boosting rounds.
-xgboost,max_depth,No default,Maximum tree depth for base learners.
-xgboost,max_leaves,No default,"Maximum number of leaves, 0 indicates no limit."
-xgboost,max_bin,No default,"If using histogram-based algorithm, maximum number of bins per feature"
-xgboost,grow_policy,No default,"Tree growing policy. 0: favor splitting at nodes closest to the node, i.e. grow
+lib,arg_name,type_name,default,description
+xgboost,n_estimators,Optional[int],No default,Number of boosting rounds.
+xgboost,max_depth,Optional[int],No default,Maximum tree depth for base learners.
+xgboost,max_leaves,any,No default,"Maximum number of leaves, 0 indicates no limit."
+xgboost,max_bin,any,No default,"If using histogram-based algorithm, maximum number of bins per feature"
+xgboost,grow_policy,any,No default,"Tree growing policy. 0: favor splitting at nodes closest to the node, i.e. grow
 depth-wise. 1: favor splitting at nodes with highest loss change."
-xgboost,learning_rate,No default,"Boosting learning rate (xgb's ""eta"")"
-xgboost,verbosity,No default,The degree of verbosity. Valid values are 0 (silent) - 3 (debug).
-xgboost,objective,No default,"Specify the learning task and the corresponding learning objective or
+xgboost,learning_rate,Optional[float],No default,"Boosting learning rate (xgb's ""eta"")"
+xgboost,verbosity,Optional[int],No default,The degree of verbosity. Valid values are 0 (silent) - 3 (debug).
+xgboost,objective,"typing.Union[str, typing.Callable[[numpy.ndarray, numpy.ndarray], typing.Tuple[numpy.ndarray, numpy.ndarray]], NoneType]",No default,"Specify the learning task and the corresponding learning objective or
 a custom objective function to be used (see note below)."
-xgboost,booster,No default,"Specify which booster to use: gbtree, gblinear or dart."
-xgboost,tree_method,to,"Specify which tree method to use.  Default to auto.  If this parameter is set to
+xgboost,booster,Optional[str],No default,"Specify which booster to use: gbtree, gblinear or dart."
+xgboost,tree_method,Optional[str],to,"Specify which tree method to use.  Default to auto.  If this parameter is set to
 default, XGBoost will choose the most conservative option available.  It's
 recommended to study this option from the parameters document :doc:`tree method
 </treemethod>`"
-xgboost,n_jobs,No default,"Number of parallel threads used to run xgboost.  When used with other
+xgboost,n_jobs,Optional[int],No default,"Number of parallel threads used to run xgboost.  When used with other
 Scikit-Learn algorithms like grid search, you may choose which algorithm to
 parallelize and balance the threads.  Creating thread contention will
 significantly slow down both algorithms."
-xgboost,gamma,No default,"(min_split_loss) Minimum loss reduction required to make a further partition on a
+xgboost,gamma,Optional[float],No default,"(min_split_loss) Minimum loss reduction required to make a further partition on a
 leaf node of the tree."
-xgboost,min_child_weight,No default,Minimum sum of instance weight(hessian) needed in a child.
-xgboost,max_delta_step,No default,Maximum delta step we allow each tree's weight estimation to be.
-xgboost,subsample,No default,Subsample ratio of the training instance.
-xgboost,sampling_method,No default,"Sampling method. Used only by the GPU version of ``hist`` tree method.
+xgboost,min_child_weight,Optional[float],No default,Minimum sum of instance weight(hessian) needed in a child.
+xgboost,max_delta_step,Optional[float],No default,Maximum delta step we allow each tree's weight estimation to be.
+xgboost,subsample,Optional[float],No default,Subsample ratio of the training instance.
+xgboost,sampling_method,any,No default,"Sampling method. Used only by the GPU version of ``hist`` tree method.
   - ``uniform``: select random training instances uniformly.
   - ``gradient_based`` select random training instances with higher probability
     when the gradient and hessian are larger. (cf. CatBoost)"
-xgboost,colsample_bytree,No default,Subsample ratio of columns when constructing each tree.
-xgboost,colsample_bylevel,No default,Subsample ratio of columns for each level.
-xgboost,colsample_bynode,No default,Subsample ratio of columns for each split.
-xgboost,reg_alpha,No default,L1 regularization term on weights (xgb's alpha).
-xgboost,reg_lambda,No default,L2 regularization term on weights (xgb's lambda).
-xgboost,scale_pos_weight,No default,Balancing of positive and negative weights.
-xgboost,base_score,No default,"The initial prediction score of all instances, global bias."
-xgboost,random_state,No default,"Random number seed.
+xgboost,colsample_bytree,Optional[float],No default,Subsample ratio of columns when constructing each tree.
+xgboost,colsample_bylevel,Optional[float],No default,Subsample ratio of columns for each level.
+xgboost,colsample_bynode,Optional[float],No default,Subsample ratio of columns for each split.
+xgboost,reg_alpha,Optional[float],No default,L1 regularization term on weights (xgb's alpha).
+xgboost,reg_lambda,Optional[float],No default,L2 regularization term on weights (xgb's lambda).
+xgboost,scale_pos_weight,Optional[float],No default,Balancing of positive and negative weights.
+xgboost,base_score,Optional[float],No default,"The initial prediction score of all instances, global bias."
+xgboost,random_state,"Optional[Union[numpy.random.RandomState, int]]",No default,"Random number seed.
 
 .. note::
 
    Using gblinear booster with shotgun updater is nondeterministic as
    it uses Hogwild algorithm."
-xgboost,missing,No default,Value in the data which needs to be present as a missing value.
-xgboost,num_parallel_tree,No default,Used for boosting random forest.
-xgboost,monotone_constraints,No default,"Constraint of variable monotonicity.  See :doc:`tutorial </tutorials/monotonic>`
+xgboost,missing,"float, default np.nan",No default,Value in the data which needs to be present as a missing value.
+xgboost,num_parallel_tree,Optional[int],No default,Used for boosting random forest.
+xgboost,monotone_constraints,"Optional[Union[Dict[str, int], str]]",No default,"Constraint of variable monotonicity.  See :doc:`tutorial </tutorials/monotonic>`
 for more information."
-xgboost,interaction_constraints,No default,"Constraints for interaction representing permitted interactions.  The
+xgboost,interaction_constraints,"Optional[Union[str, List[Tuple[str]]]]",No default,"Constraints for interaction representing permitted interactions.  The
 constraints must be specified in the form of a nested list, e.g. ``[[0, 1], [2,
 3, 4]]``, where each inner list is a group of indices of features that are
 allowed to interact with each other.  See :doc:`tutorial
 </tutorials/feature_interaction_constraint>` for more information"
-xgboost,importance_type,No default,"The feature importance type for the feature_importances\_ property:
+xgboost,importance_type,Optional[str],No default,"The feature importance type for the feature_importances\_ property:
 
 * For tree model, it's either ""gain"", ""weight"", ""cover"", ""total_gain"" or
   ""total_cover"".
 * For linear model, only ""weight"" is defined and it's the normalized coefficients
   without bias."
-xgboost,device,No default,".. versionadded:: 2.0.0
+xgboost,device,Optional[str],No default,".. versionadded:: 2.0.0
 
 Device ordinal, available options are `cpu`, `cuda`, and `gpu`."
-xgboost,validate_parameters,No default,Give warnings for unknown parameter.
-xgboost,enable_categorical,No default,".. versionadded:: 1.5.0
+xgboost,validate_parameters,Optional[bool],No default,Give warnings for unknown parameter.
+xgboost,enable_categorical,bool,No default,".. versionadded:: 1.5.0
 
 .. note:: This parameter is experimental
 
 Experimental support for categorical data.  When enabled, cudf/pandas.DataFrame
 should be used to specify categorical data type.  Also, JSON/UBJSON
 serialization format is required."
-xgboost,feature_types,No default,".. versionadded:: 1.7.0
+xgboost,feature_types,Optional[FeatureTypes],No default,".. versionadded:: 1.7.0
 
 Used for specifying feature types without constructing a dataframe. See
 :py:class:`DMatrix` for details."
-xgboost,max_cat_to_onehot,No default,".. versionadded:: 1.6.0
+xgboost,max_cat_to_onehot,Optional[int],No default,".. versionadded:: 1.6.0
 
 .. note:: This parameter is experimental
 
@@ -80,7 +80,7 @@ then one-hot encoding is chosen, otherwise the categories will be partitioned
 into children nodes. Also, `enable_categorical` needs to be set to have
 categorical feature support. See :doc:`Categorical Data
 </tutorials/categorical>` and :ref:`cat-param` for details."
-xgboost,max_cat_threshold,No default,".. versionadded:: 1.7.0
+xgboost,max_cat_threshold,Optional[int],No default,".. versionadded:: 1.7.0
 
 .. note:: This parameter is experimental
 
@@ -88,7 +88,7 @@ Maximum number of categories considered for each split. Used only by
 partition-based splits for preventing over-fitting. Also, `enable_categorical`
 needs to be set to have categorical feature support. See :doc:`Categorical Data
 </tutorials/categorical>` and :ref:`cat-param` for details."
-xgboost,multi_strategy,No default,".. versionadded:: 2.0.0
+xgboost,multi_strategy,Optional[str],No default,".. versionadded:: 2.0.0
 
 .. note:: This parameter is working-in-progress.
 
@@ -98,7 +98,7 @@ more information.
 
 - ``one_output_per_tree``: One model for each target.
 - ``multi_output_tree``:  Use multi-target trees."
-xgboost,eval_metric,XGBoost,".. versionadded:: 1.6.0
+xgboost,eval_metric,"Optional[Union[str, List[str], Callable]]",XGBoost,".. versionadded:: 1.6.0
 
 Metric used for monitoring the training result and early stopping.  It can be a
 string or list of strings as names of predefined metric in XGBoost (See
@@ -134,7 +134,7 @@ for more.
         eval_metric=mean_absolute_error,
     )
     reg.fit(X, y, eval_set=[(X, y)])"
-xgboost,early_stopping_rounds,No default,".. versionadded:: 1.6.0
+xgboost,early_stopping_rounds,Optional[int],No default,".. versionadded:: 1.6.0
 
 - Activates early stopping. Validation metric needs to improve at least once in
   every **early_stopping_rounds** round(s) to continue training.  Requires at
@@ -158,7 +158,7 @@ xgboost,early_stopping_rounds,No default,".. versionadded:: 1.6.0
 .. note::
 
     This parameter replaces `early_stopping_rounds` in :py:meth:`fit` method."
-xgboost,callbacks,No default,"List of callback functions that are applied at end of each iteration.
+xgboost,callbacks,Optional[List[TrainingCallback]],No default,"List of callback functions that are applied at end of each iteration.
 It is possible to use predefined callbacks by using
 :ref:`Callback API <callback_api>`.
 
@@ -175,7 +175,7 @@ It is possible to use predefined callbacks by using
         callbacks = [xgb.callback.LearningRateScheduler(custom_rates)]
         reg = xgboost.XGBRegressor(**params, callbacks=callbacks)
         reg.fit(X, y)"
-xgboost,kwargs,No default,"Keyword arguments for XGBoost Booster object.  Full documentation of parameters
+xgboost,kwargs,dict,No default,"Keyword arguments for XGBoost Booster object.  Full documentation of parameters
 can be found :doc:`here </parameter>`.
 Attempting to set a parameter via the constructor args and \*\*kwargs
 dict simultaneously will result in a TypeError.

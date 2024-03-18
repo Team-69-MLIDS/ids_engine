@@ -412,8 +412,9 @@ kwargs : dict, optional
 '''
 with open('xgboost.csv', mode='w+', newline='') as csvfile: 
     csv_writer = csv.writer(csvfile)
-    csv_writer.writerow(['lib', 'arg_name', 'default', 'description'])
+    csv_writer.writerow(['lib', 'arg_name', 'type_name', 'default', 'description'])
 
     d = parse(xgboost_doc)
     for p in d.params:
-        csv_writer.writerow(('xgboost', p.arg_name, p.default or "No default", p.description or "No description"))
+        print(p.type_name or "any")
+        csv_writer.writerow(('xgboost', p.arg_name, p.type_name or "any", p.default or "No default", p.description or "No description"))
