@@ -115,12 +115,6 @@ plt.ylabel('y_true')
 plt.title('catboost confusion matrix')
 plt.savefig('./catboost_confusion_matrix.png')
 
-
-
-
-
-
-
 ## Proposed ensemble model: Leader Class and Confidence Decision Ensemble (LCCDE)
 
 ### Find the best-performing (leading) model for each type of attack among the three ML models

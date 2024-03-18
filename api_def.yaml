@@ -1,0 +1,170 @@
+openapi: 3.0.3
+info:
+  title: IDS API
+  description: The api for the ids playground
+  contact:
+    name: Team 69
+    url: "https://github.com/team-69-mlids"
+    email: tmc190005@utdallas.edu
+  version: 0.1.0
+
+servers: 
+- url: https://localhost:5000/api
+  description: Local Server 
+
+paths:
+  "/datasets":
+    get:
+      tags: ["Configuration"]
+      summary: Returns all available datasets
+      description: Returns all available datasets
+      operationId: getDatasets
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/dataset"
+                
+  "/algorithm_names":
+    get:
+      tags: ["Configuration"]
+      summary: Returns list of names of algorithms that can be ran on the engine
+      description: Algorithm names 
+      operationId: getAlgorithmNames
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/algorithm"
+  "/run":
+    get:
+      tags: ["Data retrieval"]
+      description: Get Runs stored in the database. Query parameters can be used to filter the results on date, time frame, and run id.
+      operationId: getRuns
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: string
+          description: Starting date to search
+        - in: query
+          name: till
+          schema:
+            type: string
+          description: Ending date to search
+        - in: query
+          name: runid
+          schema:
+            type: string
+          description: Run ID to match
+      summary: Returns past runs
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/run"
+    post:
+      tags: ["Execution"]
+      description: Submit hyperparameters and train the selected algorithm
+      operationId: submitAndExecute
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/hyperparameters"
+        
+      responses: 
+        "200":
+          description: Ok
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/run"
+                
+  
+
+components:
+  schemas:
+    dataset:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Displayable filename
+        full_path:
+          type: string
+          description: The entire path to this file
+          
+    algorithm:
+      type: object
+      example: 
+        algorithms: ["LCCDE", "Treebased"]
+      properties:
+        algorithms:
+          type: array
+          description: Names of the algorithm
+          
+    run:
+      type: object
+      example: 
+        algorithm: "LCCDE"
+        runid: "Testing High Learning Rate"
+        date: "2020-07-15 14:30:26.159446"
+        enemble: []
+      properties:
+        ensemble:
+          type: array
+          description: Array containing performance metrics for each model in the ensemble
+          items:
+              type: object
+              description: result 
+              properties:
+                model_name:
+                  type: string
+                  description: the model (eg, XGboost)
+                confusion_matrix: 
+                  type: array
+                  items: 
+                    type: number
+                f1_score: 
+                  type: number
+                  description: performance metric
+                precision: 
+                  type: number
+                  description: performance metric
+                recall: 
+                  type: number
+                  description: performance metric
+                macro_avg: 
+                  type: number
+                  description: performance metric
+                weighted_avg: 
+                  type: number
+                  description: performance metric
+        algorithm:
+          type: string
+          description: Name of the algorithm used 
+        runid:
+          type: string
+          description: RunID provided by user when submitted
+        tiemstamp: 
+          type: string
+          description: Date of submission in `mm-dd-yyyy hh:mm::ss` format
+    
+    # We should decide what kind of parameters are "required"
+    # the backend can validate parameters are correct or not
+    hyperparameters:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the hyperparameter
+        value:
+          type: string
+          description: value of hyperparameter
