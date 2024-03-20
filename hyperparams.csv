@@ -1,22 +1,22 @@
-library,parameter_name,typeinfo,default,description
+algorithm,parameter_name,typeinfo,default,description,optional
 CatBoostClassifier,iterations,int,500,"Max count of trees.
-range: [1,+inf)"
+range: [1,+inf)",True
 CatBoostClassifier,learning_rate,float,no default,"Step size shrinkage used in update to prevents overfitting.
-range: (0,1]"
+range: (0,1]",True
 CatBoostClassifier,depth,int,6,"Depth of a tree. All trees are the same depth.
-range: [1,16]"
+range: [1,16]",True
 CatBoostClassifier,l2_leaf_reg,float,3.0,"Coefficient at the L2 regularization term of the cost function.
-range: [0,+inf)"
+range: [0,+inf)",True
 CatBoostClassifier,model_size_reg,float,None,"Model size regularization coefficient.
-range: [0,+inf)"
+range: [0,+inf)",True
 CatBoostClassifier,rsm,float,None,"Subsample ratio of columns when constructing each tree.
-range: (0,1]"
+range: (0,1]",True
 CatBoostClassifier,loss_function,"string, object",'Logloss',"The metric to use in training and also selector of the machine learning
 problem to solve. If string, then the name of a supported metric,
 optionally suffixed with parameter description.
-If object, it shall provide methods 'calc_ders_range' or 'calc_ders_multi'."
+If object, it shall provide methods 'calc_ders_range' or 'calc_ders_multi'.",True
 CatBoostClassifier,border_count,int,no default,"The number of partitions in numeric features binarization. Used in the preliminary calculation.
-range: [1,65535] on CPU, [1,255] on GPU"
+range: [1,65535] on CPU, [1,255] on GPU",True
 CatBoostClassifier,feature_border_type,string,'GreedyLogSum',"The binarization mode in numeric features binarization. Used in the preliminary calculation.
 Possible values:
     - 'Median'
@@ -24,66 +24,66 @@ Possible values:
     - 'UniformAndQuantiles'
     - 'GreedyLogSum'
     - 'MaxLogSum'
-    - 'MinEntropy'"
+    - 'MinEntropy'",True
 CatBoostClassifier,per_float_feature_quantization,list of strings,None,"List of float binarization descriptions.
 Format : described in documentation on catboost.ai
 Example 1: ['0:1024'] means that feature 0 will have 1024 borders.
 Example 2: ['0:border_count=1024', '1:border_count=1024', ...] means that two first features have 1024 borders.
 Example 3: ['0:nan_mode=Forbidden,border_count=32,border_type=GreedyLogSum',
-            '1:nan_mode=Forbidden,border_count=32,border_type=GreedyLogSum'] - defines more quantization properties for first two features."
-CatBoostClassifier,input_borders,"string, pathlib.Path",None,input file with borders used in numeric features binarization.
-CatBoostClassifier,output_borders,string,None,output file for borders that were used in numeric features binarization.
+            '1:nan_mode=Forbidden,border_count=32,border_type=GreedyLogSum'] - defines more quantization properties for first two features.",True
+CatBoostClassifier,input_borders,"string, pathlib.Path",None,input file with borders used in numeric features binarization.,True
+CatBoostClassifier,output_borders,string,None,output file for borders that were used in numeric features binarization.,True
 CatBoostClassifier,fold_permutation_block,int,1,"To accelerate the learning.
 The recommended value is within [1, 256]. On small samples, must be set to 1.
-range: [1,+inf)"
+range: [1,+inf)",True
 CatBoostClassifier,od_pval,float,None,"Use overfitting detector to stop training when reaching a specified threshold.
 Can be used only with eval_set.
-range: [0,1]"
-CatBoostClassifier,od_wait,int,None,Number of iterations which overfitting detector will wait after new best error.
+range: [0,1]",True
+CatBoostClassifier,od_wait,int,None,Number of iterations which overfitting detector will wait after new best error.,True
 CatBoostClassifier,od_type,string,None,"Type of overfitting detector which will be used in program.
 Posible values:
     - 'IncToDec'
     - 'Iter'
 For 'Iter' type od_pval must not be set.
-If None, then od_type=IncToDec."
+If None, then od_type=IncToDec.",True
 CatBoostClassifier,nan_mode,string,None,"Way to process missing values for numeric features.
 Possible values:
     - 'Forbidden' - raises an exception if there is a missing value for a numeric feature in a dataset.
     - 'Min' - each missing value will be processed as the minimum numerical value.
     - 'Max' - each missing value will be processed as the maximum numerical value.
-If None, then nan_mode=Min."
+If None, then nan_mode=Min.",True
 CatBoostClassifier,counter_calc_method,string,None,"The method used to calculate counters for dataset with Counter type.
 Possible values:
     - 'PrefixTest' - only objects up to current in the test dataset are considered
     - 'FullTest' - all objects are considered in the test dataset
     - 'SkipTest' - Objects from test dataset are not considered
     - 'Full' - all objects are considered for both learn and test dataset
-If None, then counter_calc_method=PrefixTest."
+If None, then counter_calc_method=PrefixTest.",True
 CatBoostClassifier,leaf_estimation_iterations,int,None,"The number of steps in the gradient when calculating the values in the leaves.
 If None, then leaf_estimation_iterations=1.
-range: [1,+inf)"
+range: [1,+inf)",True
 CatBoostClassifier,leaf_estimation_method,string,None,"The method used to calculate the values in the leaves.
 Possible values:
     - 'Newton'
-    - 'Gradient'"
+    - 'Gradient'",True
 CatBoostClassifier,thread_count,int,None,"Number of parallel threads used to run CatBoost.
 If None or -1, then the number of threads is set to the number of CPU cores.
-range: [1,+inf)"
+range: [1,+inf)",True
 CatBoostClassifier,random_seed,int,None,"Random number seed.
 If None, 0 is used.
-range: [0,+inf)"
+range: [0,+inf)",True
 CatBoostClassifier,use_best_model,bool,None,"To limit the number of trees in predict() using information about the optimal value of the error function.
-Can be used only with eval_set."
-CatBoostClassifier,best_model_min_trees,int,None,The minimal number of trees the best model should have.
+Can be used only with eval_set.",True
+CatBoostClassifier,best_model_min_trees,int,None,The minimal number of trees the best model should have.,True
 CatBoostClassifier,verbose,bool,no default,"When set to True, logging_level is set to 'Verbose'.
-When set to False, logging_level is set to 'Silent'."
-CatBoostClassifier,silent,bool,no default,No description
+When set to False, logging_level is set to 'Silent'.",True
+CatBoostClassifier,silent,bool,no default,No description,True
 CatBoostClassifier,logging_level,string,'Verbose',"Possible values:
     - 'Silent'
     - 'Verbose'
     - 'Info'
-    - 'Debug'"
-CatBoostClassifier,metric_period,int,1,The frequency of iterations to print the information to stdout. The value should be a positive integer.
+    - 'Debug'",True
+CatBoostClassifier,metric_period,int,1,The frequency of iterations to print the information to stdout. The value should be a positive integer.,True
 CatBoostClassifier,simple_ctr,list of strings,None,"Binarization settings for categorical features.
     Format : see documentation
     Example: ['Borders:CtrBorderCount=5:Prior=0:Prior=0.5', 'BinarizedTargetMeanValue:TargetBorderCount=10:TargetBorderType=MinEntropy', ...]
@@ -97,13 +97,13 @@ CatBoostClassifier,simple_ctr,list of strings,None,"Binarization settings for ca
         GPU only
         - 'FloatTargetMeanValue'
         - 'FeatureFreq'
-    Number_of_borders, binarization type, target borders and binarizations, priors are optional parametrs"
-CatBoostClassifier,combinations_ctr,list of strings,None,No description
-CatBoostClassifier,per_feature_ctr,list of strings,None,No description
+    Number_of_borders, binarization type, target borders and binarizations, priors are optional parametrs",True
+CatBoostClassifier,combinations_ctr,list of strings,None,No description,True
+CatBoostClassifier,per_feature_ctr,list of strings,None,No description,True
 CatBoostClassifier,ctr_target_border_count,int,None,"Maximum number of borders used in target binarization for categorical features that need it.
 If TargetBorderCount is specified in 'simple_ctr', 'combinations_ctr' or 'per_feature_ctr' option it
 overrides this value.
-range: [1, 255]"
+range: [1, 255]",True
 CatBoostClassifier,ctr_leaf_count_limit,int,None,"The maximum number of leaves with categorical features.
 If the number of leaves exceeds the specified limit, some leaves are discarded.
 The leaves to be discarded are selected as follows:
@@ -113,16 +113,16 @@ The leaves to be discarded are selected as follows:
 This option reduces the resulting model size
 and the amount of memory required for training.
 Note that the resulting quality of the model can be affected.
-range: [1,+inf) (for zero limit use ignored_features)"
+range: [1,+inf) (for zero limit use ignored_features)",True
 CatBoostClassifier,store_all_simple_ctr,bool,None,"Ignore categorical features, which are not used in feature combinations,
 when choosing candidates for exclusion.
-Use this parameter with ctr_leaf_count_limit only."
+Use this parameter with ctr_leaf_count_limit only.",True
 CatBoostClassifier,max_ctr_complexity,int,4,"The maximum number of Categ features that can be combined.
-range: [0,+inf)"
+range: [0,+inf)",True
 CatBoostClassifier,has_time,bool,False,"To use the order in which objects are represented in the input data
-(do not perform a random permutation of the dataset at the preprocessing stage)."
-CatBoostClassifier,allow_const_label,bool,False,To allow the constant label value in dataset.
-CatBoostClassifier,target_border,float,None,Border for target binarization.
+(do not perform a random permutation of the dataset at the preprocessing stage).",True
+CatBoostClassifier,allow_const_label,bool,False,To allow the constant label value in dataset.,True
+CatBoostClassifier,target_border,float,None,Border for target binarization.,True
 CatBoostClassifier,classes_count,int,None,"The upper limit for the numeric class label.
 Defines the number of classes for multiclassification.
 Only non-negative integers can be specified.
@@ -130,142 +130,142 @@ The given integer should be greater than any of the target values.
 If this parameter is specified the labels for all classes in the input dataset
 should be smaller than the given value.
 If several of 'classes_count', 'class_weights', 'class_names' parameters are defined
-the numbers of classes specified by each of them must be equal."
+the numbers of classes specified by each of them must be equal.",True
 CatBoostClassifier,class_weights,"list, dict",None,"Classes weights. The values are used as multipliers for the object weights.
 If None, all classes are supposed to have weight one.
 If list - class weights in order of class_names or sequential classes if class_names is undefined
 If dict - dict of class_name -> class_weight.
 If several of 'classes_count', 'class_weights', 'class_names' parameters are defined
-the numbers of classes specified by each of them must be equal."
+the numbers of classes specified by each of them must be equal.",True
 CatBoostClassifier,auto_class_weights,string ,None,"Enables automatic class weights calculation. Possible values:
     - Balanced  # weight = maxSummaryClassWeight / summaryClassWeight, statistics determined from train pool
-    - SqrtBalanced  # weight = sqrt(maxSummaryClassWeight / summaryClassWeight)"
+    - SqrtBalanced  # weight = sqrt(maxSummaryClassWeight / summaryClassWeight)",True
 CatBoostClassifier,class_names,list of strings,None,"Class names. Allows to redefine the default values for class labels (integer numbers).
 If several of 'classes_count', 'class_weights', 'class_names' parameters are defined
-the numbers of classes specified by each of them must be equal."
+the numbers of classes specified by each of them must be equal.",True
 CatBoostClassifier,one_hot_max_size,int,None,"Convert the feature to float
 if the number of different values that it takes exceeds the specified value.
-Ctrs are not calculated for such features."
-CatBoostClassifier,random_strength,float,1,Score standard deviation multiplier.
+Ctrs are not calculated for such features.",True
+CatBoostClassifier,random_strength,float,1,Score standard deviation multiplier.,True
 CatBoostClassifier,random_score_type,string ,None,"Type of random noise added to scores.
 Possible values:
     - 'Gumbel' - Gumbel-distributed
     - 'NormalWithModelSizeDecrease' - Normally-distributed with deviation decreasing with model iteration count
-If None than 'NormalWithModelSizeDecrease' will be used by default."
-CatBoostClassifier,name,string,'experiment',The name that should be displayed in the visualization tools.
-CatBoostClassifier,ignored_features,list,None,Indices or names of features that should be excluded when training.
-CatBoostClassifier,train_dir,"string, pathlib.Path",None,The directory in which you want to record generated in the process of learning files.
-CatBoostClassifier,custom_metric,"string, list of strings",None,To use your own metric function.
-CatBoostClassifier,custom_loss,alias to custom_metric,no default,No description
-CatBoostClassifier,eval_metric,"string, object",None,To optimize your custom metric in loss.
+If None than 'NormalWithModelSizeDecrease' will be used by default.",True
+CatBoostClassifier,name,string,'experiment',The name that should be displayed in the visualization tools.,True
+CatBoostClassifier,ignored_features,list,None,Indices or names of features that should be excluded when training.,True
+CatBoostClassifier,train_dir,"string, pathlib.Path",None,The directory in which you want to record generated in the process of learning files.,True
+CatBoostClassifier,custom_metric,"string, list of strings",None,To use your own metric function.,True
+CatBoostClassifier,custom_loss,alias to custom_metric,no default,No description,True
+CatBoostClassifier,eval_metric,"string, object",None,To optimize your custom metric in loss.,True
 CatBoostClassifier,bagging_temperature,float,None,"Controls intensity of Bayesian bagging. The higher the temperature the more aggressive bagging is.
-Typical values are in range [0, 1] (0 - no bagging, 1 - default)."
-CatBoostClassifier,save_snapshot,bool,None,Enable progress snapshotting for restoring progress after crashes or interruptions
-CatBoostClassifier,snapshot_file,"string, pathlib.Path",None,"Learn progress snapshot file path, if None will use default filename"
-CatBoostClassifier,snapshot_interval,int,600,Interval between saving snapshots (seconds)
-CatBoostClassifier,fold_len_multiplier,float,None,Fold length multiplier. Should be greater than 1
+Typical values are in range [0, 1] (0 - no bagging, 1 - default).",True
+CatBoostClassifier,save_snapshot,bool,None,Enable progress snapshotting for restoring progress after crashes or interruptions,True
+CatBoostClassifier,snapshot_file,"string, pathlib.Path",None,"Learn progress snapshot file path, if None will use default filename",True
+CatBoostClassifier,snapshot_interval,int,600,Interval between saving snapshots (seconds),True
+CatBoostClassifier,fold_len_multiplier,float,None,Fold length multiplier. Should be greater than 1,True
 CatBoostClassifier,used_ram_limit,"string, number",None,"Set a limit on memory consumption (value like '1.2gb' or 1.2e9).
-WARNING: Currently this option affects CTR memory usage only."
-CatBoostClassifier,gpu_ram_part,float,0.95,"Fraction of the GPU RAM to use for training, a value from (0, 1]."
+WARNING: Currently this option affects CTR memory usage only.",True
+CatBoostClassifier,gpu_ram_part,float,0.95,"Fraction of the GPU RAM to use for training, a value from (0, 1].",True
 CatBoostClassifier,pinned_memory_size,int ,None,"Size of additional CPU pinned memory used for GPU learning,
-usually is estimated automatically, thus usually should not be set."
+usually is estimated automatically, thus usually should not be set.",True
 CatBoostClassifier,allow_writing_files,bool,True,"If this flag is set to False, no files with different diagnostic info will be created during training.
 With this flag no snapshotting can be done. Plus visualisation will not
-work, because visualisation uses files that are created and updated during training."
+work, because visualisation uses files that are created and updated during training.",True
 CatBoostClassifier,final_ctr_computation_mode,string,'Default',"Possible values:
     - 'Default' - Compute final ctrs for all pools.
-    - 'Skip' - Skip final ctr computation. WARNING: model without ctrs can't be applied."
+    - 'Skip' - Skip final ctr computation. WARNING: model without ctrs can't be applied.",True
 CatBoostClassifier,approx_on_full_history,bool,False,"If this flag is set to True, each approximated value is calculated using all the preceeding rows in the fold (slower, more accurate).
-If this flag is set to False, each approximated value is calculated using only the beginning 1/fold_len_multiplier fraction of the fold (faster, slightly less accurate)."
+If this flag is set to False, each approximated value is calculated using only the beginning 1/fold_len_multiplier fraction of the fold (faster, slightly less accurate).",True
 CatBoostClassifier,boosting_type,string,no default,"Boosting scheme.
 Possible values:
     - 'Ordered' - Gives better quality, but may slow down the training.
-    - 'Plain' - The classic gradient boosting scheme. May result in quality degradation, but does not slow down the training."
+    - 'Plain' - The classic gradient boosting scheme. May result in quality degradation, but does not slow down the training.",True
 CatBoostClassifier,task_type,string,None,"The calcer type used to train the model.
 Possible values:
     - 'CPU'
-    - 'GPU'"
-CatBoostClassifier,device_config,string,None,No description
+    - 'GPU'",True
+CatBoostClassifier,device_config,string,None,No description,True
 CatBoostClassifier,devices,"list, string",None,"String format is: '0' for 1 device or '0:1:3' for multiple devices or '0-3' for range of devices.
-List format is : [0] for 1 device or [0,1,3] for multiple devices."
+List format is : [0] for 1 device or [0,1,3] for multiple devices.",True
 CatBoostClassifier,bootstrap_type,string,no default,"Default bootstrap is Bayesian for GPU and MVS for CPU.
 Poisson bootstrap is supported only on GPU.
-MVS bootstrap is supported only on GPU."
-CatBoostClassifier,subsample,float,None,Sample rate for bagging. This parameter can be used Poisson or Bernoully bootstrap types.
-CatBoostClassifier,mvs_reg,float,no default,Regularization parameter for MVS sampling algorithm
-CatBoostClassifier,monotone_constraints,"list, numpy.ndarray, string, dict",None,Monotone constraints for features.
-CatBoostClassifier,feature_weights,"list, numpy.ndarray, string, dict",None,Coefficient to multiply split gain with specific feature use. Should be non-negative.
-CatBoostClassifier,penalties_coefficient,float,1,Common coefficient for all penalties. Should be non-negative.
-CatBoostClassifier,first_feature_use_penalties,"list, numpy.ndarray, string, dict",None,Penalties to first use of specific feature in model. Should be non-negative.
-CatBoostClassifier,per_object_feature_penalties,"list, numpy.ndarray, string, dict",None,Penalties for first use of feature for each object. Should be non-negative.
+MVS bootstrap is supported only on GPU.",True
+CatBoostClassifier,subsample,float,None,Sample rate for bagging. This parameter can be used Poisson or Bernoully bootstrap types.,True
+CatBoostClassifier,mvs_reg,float,no default,Regularization parameter for MVS sampling algorithm,True
+CatBoostClassifier,monotone_constraints,"list, numpy.ndarray, string, dict",None,Monotone constraints for features.,True
+CatBoostClassifier,feature_weights,"list, numpy.ndarray, string, dict",None,Coefficient to multiply split gain with specific feature use. Should be non-negative.,True
+CatBoostClassifier,penalties_coefficient,float,1,Common coefficient for all penalties. Should be non-negative.,True
+CatBoostClassifier,first_feature_use_penalties,"list, numpy.ndarray, string, dict",None,Penalties to first use of specific feature in model. Should be non-negative.,True
+CatBoostClassifier,per_object_feature_penalties,"list, numpy.ndarray, string, dict",None,Penalties for first use of feature for each object. Should be non-negative.,True
 CatBoostClassifier,sampling_frequency,string,PerTree,"Frequency to sample weights and objects when building trees.
 Possible values:
     - 'PerTree' - Before constructing each new tree
-    - 'PerTreeLevel' - Before choosing each new split of a tree"
+    - 'PerTreeLevel' - Before choosing each new split of a tree",True
 CatBoostClassifier,sampling_unit,string,'Object',"Possible values:
     - 'Object'
     - 'Group'
 The parameter allows to specify the sampling scheme:
-sample weights for each object individually or for an entire group of objects together."
+sample weights for each object individually or for an entire group of objects together.",True
 CatBoostClassifier,dev_score_calc_obj_block_size,int,5000000,"CPU only. Size of block of samples in score calculation. Should be > 0
 Used only for learning speed tuning.
-Changing this parameter can affect results due to numerical accuracy differences"
+Changing this parameter can affect results due to numerical accuracy differences",True
 CatBoostClassifier,dev_efb_max_buckets,int,1024,"CPU only. Maximum bucket count in exclusive features bundle. Should be in an integer between 0 and 65536.
-Used only for learning speed tuning."
+Used only for learning speed tuning.",True
 CatBoostClassifier,sparse_features_conflict_fraction,float,0.0,"CPU only. Maximum allowed fraction of conflicting non-default values for features in exclusive features bundle.
-Should be a real value in [0, 1) interval."
-CatBoostClassifier,grow_policy,string,SymmetricTree,The tree growing policy. It describes how to perform greedy tree construction.
+Should be a real value in [0, 1) interval.",True
+CatBoostClassifier,grow_policy,string,SymmetricTree,The tree growing policy. It describes how to perform greedy tree construction.,True
 CatBoostClassifier,min_data_in_leaf,int,1,"The minimum training samples count in leaf.
 CatBoost will not search for new splits in leaves with samples count less than min_data_in_leaf.
-This parameter is used only for Depthwise and Lossguide growing policies."
+This parameter is used only for Depthwise and Lossguide growing policies.",True
 CatBoostClassifier,max_leaves,int,31,"The maximum leaf count in resulting tree.
-This parameter is used only for Lossguide growing policy."
+This parameter is used only for Lossguide growing policy.",True
 CatBoostClassifier,score_function,string,Cosine,"For growing policy Lossguide default=NewtonL2.
-GPU only. Score that is used during tree construction to select the next tree split."
-CatBoostClassifier,max_depth,int,no default,No description
-CatBoostClassifier,n_estimators,int,no default,No description
-CatBoostClassifier,num_trees,int,no default,No description
-CatBoostClassifier,num_boost_round,int,no default,No description
-CatBoostClassifier,colsample_bylevel,float,no default,No description
-CatBoostClassifier,random_state,int,no default,No description
-CatBoostClassifier,reg_lambda,float,no default,No description
-CatBoostClassifier,objective,string,no default,No description
-CatBoostClassifier,num_leaves,int,no default,No description
-CatBoostClassifier,min_child_samples,int,no default,No description
-CatBoostClassifier,eta,float,no default,No description
-CatBoostClassifier,max_bin,float,no default,No description
+GPU only. Score that is used during tree construction to select the next tree split.",True
+CatBoostClassifier,max_depth,int,no default,No description,True
+CatBoostClassifier,n_estimators,int,no default,No description,True
+CatBoostClassifier,num_trees,int,no default,No description,True
+CatBoostClassifier,num_boost_round,int,no default,No description,True
+CatBoostClassifier,colsample_bylevel,float,no default,No description,True
+CatBoostClassifier,random_state,int,no default,No description,True
+CatBoostClassifier,reg_lambda,float,no default,No description,True
+CatBoostClassifier,objective,string,no default,No description,True
+CatBoostClassifier,num_leaves,int,no default,No description,True
+CatBoostClassifier,min_child_samples,int,no default,No description,True
+CatBoostClassifier,eta,float,no default,No description,True
+CatBoostClassifier,max_bin,float,no default,No description,True
 CatBoostClassifier,scale_pos_weight,float,no default,"Can be used only for binary classification. Sets weight multiplier for
-class 1 to scale_pos_weight value."
-CatBoostClassifier,metadata,dict,no default,No description
-CatBoostClassifier,early_stopping_rounds,int,no default,Synonym for od_wait. Only one of these parameters should be set.
+class 1 to scale_pos_weight value.",True
+CatBoostClassifier,metadata,dict,no default,No description,True
+CatBoostClassifier,early_stopping_rounds,int,no default,Synonym for od_wait. Only one of these parameters should be set.,True
 CatBoostClassifier,cat_features,"list, numpy.ndarray",None,"If not None, giving the list of Categ features indices or names (names are represented as strings).
-If it contains feature names, feature names must be defined for the training dataset passed to 'fit'."
+If it contains feature names, feature names must be defined for the training dataset passed to 'fit'.",True
 CatBoostClassifier,text_features,"list, numpy.ndarray",None,"If not None, giving the list of Text features indices or names (names are represented as strings).
-If it contains feature names, feature names must be defined for the training dataset passed to 'fit'."
+If it contains feature names, feature names must be defined for the training dataset passed to 'fit'.",True
 CatBoostClassifier,embedding_features,"list, numpy.ndarray",None,"If not None, giving the list of Embedding features indices or names (names are represented as strings).
-If it contains feature names, feature names must be defined for the training dataset passed to 'fit'."
+If it contains feature names, feature names must be defined for the training dataset passed to 'fit'.",True
 CatBoostClassifier,leaf_estimation_backtracking,string,None,"Type of backtracking during gradient descent.
 Possible values:
     - 'No' - never backtrack; supported on CPU and GPU
     - 'AnyImprovement' - reduce the descent step until the value of loss function is less than before the step; supported on CPU and GPU
-    - 'Armijo' - reduce the descent step until Armijo condition is satisfied; supported on GPU only"
+    - 'Armijo' - reduce the descent step until Armijo condition is satisfied; supported on GPU only",True
 CatBoostClassifier,model_shrink_rate,float,0,"This parameter enables shrinkage of model at the start of each iteration. CPU only.
 For Constant mode shrinkage coefficient is calculated as (1 - model_shrink_rate * learning_rate).
 For Decreasing mode shrinkage coefficient is calculated as (1 - model_shrink_rate / iteration).
-Shrinkage coefficient should be in [0, 1)."
+Shrinkage coefficient should be in [0, 1).",True
 CatBoostClassifier,model_shrink_mode,string,None,"Mode of shrinkage coefficient calculation. CPU only.
 Possible values:
     - 'Constant' - Shrinkage coefficient is constant at each iteration.
-    - 'Decreasing' - Shrinkage coefficient decreases at each iteration."
-CatBoostClassifier,langevin,bool,False,Enables the Stochastic Gradient Langevin Boosting. CPU only.
-CatBoostClassifier,diffusion_temperature,float,0,Langevin boosting diffusion temperature. CPU only.
+    - 'Decreasing' - Shrinkage coefficient decreases at each iteration.",True
+CatBoostClassifier,langevin,bool,False,Enables the Stochastic Gradient Langevin Boosting. CPU only.,True
+CatBoostClassifier,diffusion_temperature,float,0,Langevin boosting diffusion temperature. CPU only.,True
 CatBoostClassifier,posterior_sampling,bool,False,"Set group of parameters for further use Uncertainty prediction:
     - Langevin = True
     - Model Shrink Rate = 1/(2N), where N is dataset size
     - Model Shrink Mode = Constant
-    - Diffusion-temperature = N, where N is dataset size. CPU only."
+    - Diffusion-temperature = N, where N is dataset size. CPU only.",True
 CatBoostClassifier,boost_from_average,bool,"True for RMSE, False for other losses","Enables to initialize approx values by best constant value for specified loss function.
-Available for RMSE, Logloss, CrossEntropy, Quantile and MAE."
+Available for RMSE, Logloss, CrossEntropy, Quantile and MAE.",True
 CatBoostClassifier,tokenizers,list of dicts,no default,"Each dict is a tokenizer description. Example:
 ```
 [
@@ -286,7 +286,7 @@ CatBoostClassifier,tokenizers,list of dicts,no default,"Each dict is a tokenizer
     },
     ...
 ]
-```"
+```",True
 CatBoostClassifier,dictionaries,list of dicts,no default,"Each dict is a tokenizer description. Example:
 ```
 [
@@ -302,7 +302,7 @@ CatBoostClassifier,dictionaries,list of dicts,no default,"Each dict is a tokeniz
     },
     ...
 ]
-```"
+```",True
 CatBoostClassifier,feature_calcers,list of strings,no default,"Each string is a calcer description. Example:
 ```
 [
@@ -310,24 +310,24 @@ CatBoostClassifier,feature_calcers,list of strings,no default,"Each string is a 
     'BM25',
     'BoW:top_tokens_count=2000',
 ]
-```"
-CatBoostClassifier,text_processing,dict,no default,Text processging description.
-CatBoostClassifier,eval_fraction,float,None,Fraction of the train dataset to be used as the evaluation dataset.
-LGBMClassifier,boosting_type,No default,"'gbdt', traditional Gradient Boosting Decision Tree.
+```",True
+CatBoostClassifier,text_processing,dict,no default,Text processging description.,True
+CatBoostClassifier,eval_fraction,float,None,Fraction of the train dataset to be used as the evaluation dataset.,True
+LGBMClassifier,boosting_type,"str, optional (default='gbdt')",No default,"'gbdt', traditional Gradient Boosting Decision Tree.
 'dart', Dropouts meet Multiple Additive Regression Trees.
-'rf', Random Forest."
-LGBMClassifier,num_leaves,No default,Maximum tree leaves for base learners.
-LGBMClassifier,max_depth,No default,"Maximum tree depth for base learners, <=0 means no limit."
-LGBMClassifier,learning_rate,No default,"Boosting learning rate.
+'rf', Random Forest.",True
+LGBMClassifier,num_leaves,"int, optional (default=31)",No default,Maximum tree leaves for base learners.,True
+LGBMClassifier,max_depth,"int, optional (default=-1)",No default,"Maximum tree depth for base learners, <=0 means no limit.",True
+LGBMClassifier,learning_rate,"float, optional (default=0.1)",No default,"Boosting learning rate.
 You can use ``callbacks`` parameter of ``fit`` method to shrink/adapt learning rate
 in training using ``reset_parameter`` callback.
-Note, that this will ignore the ``learning_rate`` argument in training."
-LGBMClassifier,n_estimators,No default,Number of boosted trees to fit.
-LGBMClassifier,subsample_for_bin,No default,Number of samples for constructing bins.
-LGBMClassifier,objective,No default,"Specify the learning task and the corresponding learning objective or
+Note, that this will ignore the ``learning_rate`` argument in training.",True
+LGBMClassifier,n_estimators,"int, optional (default=100)",No default,Number of boosted trees to fit.,True
+LGBMClassifier,subsample_for_bin,"int, optional (default=200000)",No default,Number of samples for constructing bins.,True
+LGBMClassifier,objective,"str, callable or None, optional (default=None)",No default,"Specify the learning task and the corresponding learning objective or
 a custom objective function to be used (see note below).
-Default: 'regression' for LGBMRegressor, 'binary' or 'multiclass' for LGBMClassifier, 'lambdarank' for LGBMRanker."
-LGBMClassifier,class_weight,No default,"Weights associated with classes in the form ``{class_label: weight}``.
+Default: 'regression' for LGBMRegressor, 'binary' or 'multiclass' for LGBMClassifier, 'lambdarank' for LGBMRanker.",True
+LGBMClassifier,class_weight,"dict, 'balanced' or None, optional (default=None)",No default,"Weights associated with classes in the form ``{class_label: weight}``.
 Use this parameter only for multi-class classification task;
 for binary classification task you may use ``is_unbalance`` or ``scale_pos_weight`` parameters.
 Note, that the usage of all these parameters will result in poor estimates of the individual class probabilities.
@@ -337,20 +337,20 @@ The 'balanced' mode uses the values of y to automatically adjust weights
 inversely proportional to class frequencies in the input data as ``n_samples / (n_classes * np.bincount(y))``.
 If None, all classes are supposed to have weight one.
 Note, that these weights will be multiplied with ``sample_weight`` (passed through the ``fit`` method)
-if ``sample_weight`` is specified."
-LGBMClassifier,min_split_gain,No default,Minimum loss reduction required to make a further partition on a leaf node of the tree.
-LGBMClassifier,min_child_weight,No default,Minimum sum of instance weight (Hessian) needed in a child (leaf).
-LGBMClassifier,min_child_samples,No default,Minimum number of data needed in a child (leaf).
-LGBMClassifier,subsample,No default,Subsample ratio of the training instance.
-LGBMClassifier,subsample_freq,No default,"Frequency of subsample, <=0 means no enable."
-LGBMClassifier,colsample_bytree,No default,Subsample ratio of columns when constructing each tree.
-LGBMClassifier,reg_alpha,No default,L1 regularization term on weights.
-LGBMClassifier,reg_lambda,No default,L2 regularization term on weights.
-LGBMClassifier,random_state,seeds,"Random number seed.
+if ``sample_weight`` is specified.",True
+LGBMClassifier,min_split_gain,"float, optional (default=0.)",No default,Minimum loss reduction required to make a further partition on a leaf node of the tree.,True
+LGBMClassifier,min_child_weight,"float, optional (default=1e-3)",No default,Minimum sum of instance weight (Hessian) needed in a child (leaf).,True
+LGBMClassifier,min_child_samples,"int, optional (default=20)",No default,Minimum number of data needed in a child (leaf).,True
+LGBMClassifier,subsample,"float, optional (default=1.)",No default,Subsample ratio of the training instance.,True
+LGBMClassifier,subsample_freq,"int, optional (default=0)",No default,"Frequency of subsample, <=0 means no enable.",True
+LGBMClassifier,colsample_bytree,"float, optional (default=1.)",No default,Subsample ratio of columns when constructing each tree.,True
+LGBMClassifier,reg_alpha,"float, optional (default=0.)",No default,L1 regularization term on weights.,True
+LGBMClassifier,reg_lambda,"float, optional (default=0.)",No default,L2 regularization term on weights.,True
+LGBMClassifier,random_state,"int, RandomState object or None, optional (default=None)",seeds,"Random number seed.
 If int, this number is used to seed the C++ code.
 If RandomState or Generator object (numpy), a random integer is picked based on its state to seed the C++ code.
-If None, default seeds in C++ code are used."
-LGBMClassifier,n_jobs,number,"Number of parallel threads to use for training (can be changed at prediction time by
+If None, default seeds in C++ code are used.",True
+LGBMClassifier,n_jobs,"int or None, optional (default=None)",number,"Number of parallel threads to use for training (can be changed at prediction time by
 passing it as an extra keyword argument).
 
 For better performance, it is recommended to set this to the number of physical cores
@@ -362,79 +362,79 @@ threads configured for OpenMP in the system. A value of ``None`` (the default) c
 to using the number of physical cores in the system (its correct detection requires
 either the ``joblib`` or the ``psutil`` util libraries to be installed).
 
-.. versionchanged:: 4.0.0"
-LGBMClassifier,importance_type,No default,"The type of feature importance to be filled into ``feature_importances_``.
+.. versionchanged:: 4.0.0",True
+LGBMClassifier,importance_type,"str, optional (default='split')",No default,"The type of feature importance to be filled into ``feature_importances_``.
 If 'split', result contains numbers of times the feature is used in a model.
-If 'gain', result contains total gains of splits which use the feature."
-LGBMClassifier,**kwargs,No default,"Other parameters for the model.
+If 'gain', result contains total gains of splits which use the feature.",True
+LGBMClassifier,**kwargs,,No default,"Other parameters for the model.
 Check http://lightgbm.readthedocs.io/en/latest/Parameters.html for more parameters.
 
 .. warning::
 
-    \*\*kwargs is not supported in sklearn, it may cause unexpected issues."
-xgboost,n_estimators,Optional[int],No default,Number of boosting rounds.
-xgboost,max_depth,Optional[int],No default,Maximum tree depth for base learners.
-xgboost,max_leaves,any,No default,"Maximum number of leaves, 0 indicates no limit."
-xgboost,max_bin,any,No default,"If using histogram-based algorithm, maximum number of bins per feature"
-xgboost,grow_policy,any,No default,"Tree growing policy. 0: favor splitting at nodes closest to the node, i.e. grow
-depth-wise. 1: favor splitting at nodes with highest loss change."
-xgboost,learning_rate,Optional[float],No default,"Boosting learning rate (xgb's ""eta"")"
-xgboost,verbosity,Optional[int],No default,The degree of verbosity. Valid values are 0 (silent) - 3 (debug).
-xgboost,objective,"typing.Union[str, typing.Callable[[numpy.ndarray, numpy.ndarray], typing.Tuple[numpy.ndarray, numpy.ndarray]], NoneType]",No default,"Specify the learning task and the corresponding learning objective or
-a custom objective function to be used (see note below)."
-xgboost,booster,Optional[str],No default,"Specify which booster to use: gbtree, gblinear or dart."
-xgboost,tree_method,Optional[str],to,"Specify which tree method to use.  Default to auto.  If this parameter is set to
+    \*\*kwargs is not supported in sklearn, it may cause unexpected issues.",False
+XGBClassifier,n_estimators,int,No default,Number of boosting rounds.,True
+XGBClassifier,max_depth,int,No default,Maximum tree depth for base learners.,True
+XGBClassifier,max_leaves,any,No default,"Maximum number of leaves, 0 indicates no limit.",False
+XGBClassifier,max_bin,any,No default,"If using histogram-based algorithm, maximum number of bins per feature",False
+XGBClassifier,grow_policy,any,No default,"Tree growing policy. 0: favor splitting at nodes closest to the node, i.e. grow
+depth-wise. 1: favor splitting at nodes with highest loss change.",False
+XGBClassifier,learning_rate,float,No default,"Boosting learning rate (xgb's ""eta"")",True
+XGBClassifier,verbosity,int,No default,The degree of verbosity. Valid values are 0 (silent) - 3 (debug).,True
+XGBClassifier,objective,"typing.Union[str, typing.Callable[[numpy.ndarray, numpy.ndarray], typing.Tuple[numpy.ndarray, numpy.ndarray]], NoneType]",No default,"Specify the learning task and the corresponding learning objective or
+a custom objective function to be used (see note below).",False
+XGBClassifier,booster,str,No default,"Specify which booster to use: gbtree, gblinear or dart.",True
+XGBClassifier,tree_method,str,to,"Specify which tree method to use.  Default to auto.  If this parameter is set to
 default, XGBoost will choose the most conservative option available.  It's
 recommended to study this option from the parameters document :doc:`tree method
-</treemethod>`"
-xgboost,n_jobs,Optional[int],No default,"Number of parallel threads used to run xgboost.  When used with other
+</treemethod>`",True
+XGBClassifier,n_jobs,int,No default,"Number of parallel threads used to run xgboost.  When used with other
 Scikit-Learn algorithms like grid search, you may choose which algorithm to
 parallelize and balance the threads.  Creating thread contention will
-significantly slow down both algorithms."
-xgboost,gamma,Optional[float],No default,"(min_split_loss) Minimum loss reduction required to make a further partition on a
-leaf node of the tree."
-xgboost,min_child_weight,Optional[float],No default,Minimum sum of instance weight(hessian) needed in a child.
-xgboost,max_delta_step,Optional[float],No default,Maximum delta step we allow each tree's weight estimation to be.
-xgboost,subsample,Optional[float],No default,Subsample ratio of the training instance.
-xgboost,sampling_method,any,No default,"Sampling method. Used only by the GPU version of ``hist`` tree method.
+significantly slow down both algorithms.",True
+XGBClassifier,gamma,float,No default,"(min_split_loss) Minimum loss reduction required to make a further partition on a
+leaf node of the tree.",True
+XGBClassifier,min_child_weight,float,No default,Minimum sum of instance weight(hessian) needed in a child.,True
+XGBClassifier,max_delta_step,float,No default,Maximum delta step we allow each tree's weight estimation to be.,True
+XGBClassifier,subsample,float,No default,Subsample ratio of the training instance.,True
+XGBClassifier,sampling_method,any,No default,"Sampling method. Used only by the GPU version of ``hist`` tree method.
   - ``uniform``: select random training instances uniformly.
   - ``gradient_based`` select random training instances with higher probability
-    when the gradient and hessian are larger. (cf. CatBoost)"
-xgboost,colsample_bytree,Optional[float],No default,Subsample ratio of columns when constructing each tree.
-xgboost,colsample_bylevel,Optional[float],No default,Subsample ratio of columns for each level.
-xgboost,colsample_bynode,Optional[float],No default,Subsample ratio of columns for each split.
-xgboost,reg_alpha,Optional[float],No default,L1 regularization term on weights (xgb's alpha).
-xgboost,reg_lambda,Optional[float],No default,L2 regularization term on weights (xgb's lambda).
-xgboost,scale_pos_weight,Optional[float],No default,Balancing of positive and negative weights.
-xgboost,base_score,Optional[float],No default,"The initial prediction score of all instances, global bias."
-xgboost,random_state,"Optional[Union[numpy.random.RandomState, int]]",No default,"Random number seed.
+    when the gradient and hessian are larger. (cf. CatBoost)",False
+XGBClassifier,colsample_bytree,float,No default,Subsample ratio of columns when constructing each tree.,True
+XGBClassifier,colsample_bylevel,float,No default,Subsample ratio of columns for each level.,True
+XGBClassifier,colsample_bynode,float,No default,Subsample ratio of columns for each split.,True
+XGBClassifier,reg_alpha,float,No default,L1 regularization term on weights (xgb's alpha).,True
+XGBClassifier,reg_lambda,float,No default,L2 regularization term on weights (xgb's lambda).,True
+XGBClassifier,scale_pos_weight,float,No default,Balancing of positive and negative weights.,True
+XGBClassifier,base_score,float,No default,"The initial prediction score of all instances, global bias.",True
+XGBClassifier,random_state,"Optional[Union[numpy.random.RandomState, int]]",No default,"Random number seed.
 
 .. note::
 
    Using gblinear booster with shotgun updater is nondeterministic as
-   it uses Hogwild algorithm."
-xgboost,missing,"float, default np.nan",No default,Value in the data which needs to be present as a missing value.
-xgboost,num_parallel_tree,Optional[int],No default,Used for boosting random forest.
-xgboost,monotone_constraints,"Optional[Union[Dict[str, int], str]]",No default,"Constraint of variable monotonicity.  See :doc:`tutorial </tutorials/monotonic>`
-for more information."
-xgboost,importance_type,Optional[str],No default,"The feature importance type for the feature_importances\_ property:
+   it uses Hogwild algorithm.",True
+XGBClassifier,missing,"float, default np.nan",No default,Value in the data which needs to be present as a missing value.,False
+XGBClassifier,num_parallel_tree,int,No default,Used for boosting random forest.,True
+XGBClassifier,monotone_constraints,"Optional[Union[Dict[str, int], str]]",No default,"Constraint of variable monotonicity.  See :doc:`tutorial </tutorials/monotonic>`
+for more information.",True
+XGBClassifier,importance_type,str,No default,"The feature importance type for the feature_importances\_ property:
 
 * For tree model, it's either ""gain"", ""weight"", ""cover"", ""total_gain"" or
   ""total_cover"".
 * For linear model, only ""weight"" is defined and it's the normalized coefficients
-  without bias."
-xgboost,device,Optional[str],No default,".. versionadded:: 2.0.0
+  without bias.",True
+XGBClassifier,device,str,No default,".. versionadded:: 2.0.0
 
-Device ordinal, available options are `cpu`, `cuda`, and `gpu`."
-xgboost,validate_parameters,Optional[bool],No default,Give warnings for unknown parameter.
-xgboost,enable_categorical,bool,No default,".. versionadded:: 1.5.0
+Device ordinal, available options are `cpu`, `cuda`, and `gpu`.",True
+XGBClassifier,validate_parameters,bool,No default,Give warnings for unknown parameter.,True
+XGBClassifier,enable_categorical,bool,No default,".. versionadded:: 1.5.0
 
 .. note:: This parameter is experimental
 
 Experimental support for categorical data.  When enabled, cudf/pandas.DataFrame
 should be used to specify categorical data type.  Also, JSON/UBJSON
-serialization format is required."
-xgboost,max_cat_to_onehot,Optional[int],No default,".. versionadded:: 1.6.0
+serialization format is required.",False
+XGBClassifier,max_cat_to_onehot,int,No default,".. versionadded:: 1.6.0
 
 .. note:: This parameter is experimental
 
@@ -443,16 +443,16 @@ for categorical data.  When number of categories is lesser than the threshold
 then one-hot encoding is chosen, otherwise the categories will be partitioned
 into children nodes. Also, `enable_categorical` needs to be set to have
 categorical feature support. See :doc:`Categorical Data
-</tutorials/categorical>` and :ref:`cat-param` for details."
-xgboost,max_cat_threshold,Optional[int],No default,".. versionadded:: 1.7.0
+</tutorials/categorical>` and :ref:`cat-param` for details.",True
+XGBClassifier,max_cat_threshold,int,No default,".. versionadded:: 1.7.0
 
 .. note:: This parameter is experimental
 
 Maximum number of categories considered for each split. Used only by
 partition-based splits for preventing over-fitting. Also, `enable_categorical`
 needs to be set to have categorical feature support. See :doc:`Categorical Data
-</tutorials/categorical>` and :ref:`cat-param` for details."
-xgboost,multi_strategy,Optional[str],No default,".. versionadded:: 2.0.0
+</tutorials/categorical>` and :ref:`cat-param` for details.",True
+XGBClassifier,multi_strategy,str,No default,".. versionadded:: 2.0.0
 
 .. note:: This parameter is working-in-progress.
 
@@ -461,8 +461,8 @@ regression and multi-class classification. See :doc:`/tutorials/multioutput` for
 more information.
 
 - ``one_output_per_tree``: One model for each target.
-- ``multi_output_tree``:  Use multi-target trees."
-xgboost,early_stopping_rounds,Optional[int],No default,".. versionadded:: 1.6.0
+- ``multi_output_tree``:  Use multi-target trees.",True
+XGBClassifier,early_stopping_rounds,int,No default,".. versionadded:: 1.6.0
 
 - Activates early stopping. Validation metric needs to improve at least once in
   every **early_stopping_rounds** round(s) to continue training.  Requires at
@@ -485,30 +485,4 @@ xgboost,early_stopping_rounds,Optional[int],No default,".. versionadded:: 1.6.0
 
 .. note::
 
-    This parameter replaces `early_stopping_rounds` in :py:meth:`fit` method."
-xgboost,kwargs,dict,No default,"Keyword arguments for XGBoost Booster object.  Full documentation of parameters
-can be found :doc:`here </parameter>`.
-Attempting to set a parameter via the constructor args and \*\*kwargs
-dict simultaneously will result in a TypeError.
-
-.. note:: \*\*kwargs unsupported by scikit-learn
-
-    \*\*kwargs is unsupported by scikit-learn.  We do not guarantee
-    that parameters passed via this argument will interact properly
-    with scikit-learn.
-
-.. note::  Custom objective function
-
-    A custom objective function can be provided for the ``objective``
-    parameter. In this case, it should have the signature
-    ``objective(y_true, y_pred) -> grad, hess``:
-
-    y_true: array_like of shape [n_samples]
-        The target values
-    y_pred: array_like of shape [n_samples]
-        The predicted values
-
-    grad: array_like of shape [n_samples]
-        The value of the gradient for each sample point.
-    hess: array_like of shape [n_samples]
-        The value of the second derivative for each sample point"
+    This parameter replaces `early_stopping_rounds` in :py:meth:`fit` method.",True

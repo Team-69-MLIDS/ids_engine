@@ -3,7 +3,6 @@ import sys
 import sqlite3
 import csv
 from uuid import uuid4
-
 import ids
 
 app = Flask("idsendpoint")
@@ -15,7 +14,9 @@ def test_req():
             'test_value': 'hello',
             'test_int': 1923801,
         }
-    return jsonify(data)
+        return jsonify(data)
+    else: 
+        return jsonify({'msg': 'only GET is supported'})
 
 def db_init(db: sqlite3.Connection):
     with open('./src/dbinit.sql') as dbinit:
@@ -34,7 +35,6 @@ def db_init(db: sqlite3.Connection):
 
 
 if __name__=='__main__':
-    db = sqlite3.connect('idsdb.db', timeout=20)
-    db_init(db)
-    app.run(debug=True)
-    db.close()
+    with sqlite3.connect('idsdb.db', timeout=20) as db:
+        db_init(db)
+        app.run(debug=True)
