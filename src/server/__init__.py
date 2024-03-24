@@ -31,12 +31,24 @@ def create_app(test_config=None):
     @app.route('/api/hyperparameters')
     def hello():
         con = db.get_db()
-        params = con.execute('SELECT name from hyperparameter').fetchall()
 
-        response = []
+        response = dict()
+        
+        learners = con.execute('SELECT DISTINCT base_learner_name from hyperparameter;').fetchall()
+        for p in learners:
+            response.update({ p[0]: []})
+    
+        print(response)
+
+        params = con.execute('SELECT name, base_learner_name, description, optional, default_value from hyperparameter;').fetchall()
         for p in params: 
-            print(p[0])
-            response.append(p[0])
+            response[p[1]].append({
+                'name': p[0],
+                'description': p[2],
+                'optional': p[3],
+                'default': p[4]
+                })
+            # print(p[0])
         return response
 
 
