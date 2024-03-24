@@ -42,7 +42,7 @@ paths:
                 $ref: "#/components/schemas/algorithm"
   "/run":
     get:
-      tags: ["Data retrieval"]
+      tags: ["Data Retrieval"]
       description: Get Runs stored in the database. Query parameters can be used to filter the results on date, time frame, and run id.
       operationId: getRuns
       parameters:
@@ -73,11 +73,6 @@ paths:
       tags: ["Execution"]
       description: Submit hyperparameters and train the selected algorithm
       operationId: submitAndExecute
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/hyperparameters"
         
       responses: 
         "200":
@@ -86,6 +81,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/run"
+                
+  "/hyperparameters":
+      get: 
+        tags: [ "Data Retrieval" ]
+        description: get all hyperparameters
+        operationId: getHyperparameters
+        parameters:
+        - in: query
+          name: learner 
+          schema:
+            type: string
+          description: Name of the learner to retrieve hyperparameters for
+          required: false
+        responses:
+          "200": 
+            description: ok
+            content: 
+              application/json:
+                schema:
+                  type: object  
+                  additionalProperties:
+                    type: array
+                    items:  
+                        $ref: "#/components/schemas/hyperparameter_def"
+            
+    
                 
   
 
@@ -116,7 +137,7 @@ components:
         algorithm: "LCCDE"
         runid: "Testing High Learning Rate"
         date: "2020-07-15 14:30:26.159446"
-        enemble: []
+        enemble: [{model_name: "lccde", confusion_matrix: [[1, 1, 1, 1, 1,]], f1_score: 1.0, precision: 1.0, recall: 0.9, macro_avg: 1.0, weighted_avg: 0.9}]
       properties:
         ensemble:
           type: array
@@ -157,14 +178,17 @@ components:
           type: string
           description: Date of submission in `mm-dd-yyyy hh:mm::ss` format
     
-    # We should decide what kind of parameters are "required"
-    # the backend can validate parameters are correct or not
-    hyperparameter_in_request:
-      type: object
-      properties:
-        parameter_name:
-          type: string
-          description: name of the hyperparameter
-        value:
-          type: string|number
-          description: value of hyperparameter
+    hyperparameter_def:
+        type: object
+        properties:
+            default:
+                type: string
+            description: 
+                type: string
+            name:
+                type: string
+            optional:
+                type: boolean
+            
+            
+        
