@@ -57,7 +57,8 @@ def db_initialized(db: sqlite3.Connection) -> bool:
     return len(db.execute("SELECT name from sqlite_master WHERE type='table' AND name='init';").fetchall()) > 0
 
 
-def db_init(db: sqlite3.Connection):
+def db_init():
+    db = get_db()
     if db_initialized(db):
         log.info("Database already initialized.")
         return
@@ -83,11 +84,10 @@ def db_init(db: sqlite3.Connection):
             datatype_hint = row[2]
             db.execute(sql, (str(uuid4()), base_learner_name, name, description, datatype_hint, optional, default))
             db.commit()
-    db.commit()
     log.info('Finished initalizing db.')
 
-
 if __name__=='__main__':
-    with sqlite3.connect('idsdb.db', timeout=20) as db:
-        db_init(db)
+        db_init()
+        
         app.run(debug=True)
+        close_db()
