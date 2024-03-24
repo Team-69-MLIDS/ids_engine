@@ -159,12 +159,12 @@ components:
     
     # We should decide what kind of parameters are "required"
     # the backend can validate parameters are correct or not
-    hyperparameters:
+    hyperparameter_in_request:
       type: object
       properties:
-        name:
+        parameter_name:
           type: string
           description: name of the hyperparameter
         value:
-          type: string
+          type: string|number
           description: value of hyperparameter

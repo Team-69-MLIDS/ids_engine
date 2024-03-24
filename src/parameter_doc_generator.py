@@ -1,4 +1,3 @@
-from operator import contains
 from docstring_parser import parse_from_object, parse
 from catboost import CatBoostClassifier
 import csv
@@ -87,3 +86,4 @@ with open('hyperparams.csv', mode='w+', newline='') as csvfile:
     log.info('Parsed XGBClassifier params.')
 log.info('Done.')
         
+
