@@ -3,8 +3,6 @@ import sqlite3
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS
 
-
-
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -36,8 +34,14 @@ def create_app(test_config=None):
     def hello():
         con = db.get_db()
 
+        model = request.args.get('model')
+        print("model: ", model)
+
+        if model is not None: 
+            #TODO get all algorithms in the model, and return all the hyperparameters for each algorithm in the model
+            learners = con.execute('SELECT DISTINCT base_learner_name from hyperparameter WHERE model=').fetchall()
+
         response = dict()
-        
         learners = con.execute('SELECT DISTINCT base_learner_name from hyperparameter;').fetchall()
         for p in learners:
             response.update({ p[0]: []})

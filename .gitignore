@@ -1,3 +1,5 @@
 /venv/
 /catboost_info
 /src/__pycache__/
+/src/server/__pycache__/
+/src/instance/

@@ -17,15 +17,15 @@
 - `git checkout library`
 - `cd ids_engine`
 - `virtualenv -p <python path> venv` <python path> must point to a python 3.11 binary (eg. /usr/bin/python for linux users with their system python version @ 3.11)
-- `chmod +x ./venv/bin/activate` to make the venv activation script executable if it is not already
-- Linux: `source ./venv/bin/activate`  Windows: `./venv/bin/activate.ps1` to activate the virtual environment. Repeat this step each time you open the project in a new shell session. 
+- Linux only: `chmod +x ./venv/bin/activate` to make the venv activation script executable if it is not already
+- Linux: `source ./venv/bin/activate`  Windows: `./venv/scripts/activate.ps1` to activate the virtual environment. Repeat this step each time you open the project in a new shell session. 
 - `python --version` to ensure that the venv python version is 3.11.x, the minor patch version does not matter.
 - `pip --version` to make sure pip is installed in the venv. If it is not, you can refer to [here](https://pip.pypa.io/en/stable/installation/) to install it in the venv.
 - With an activated virtual environment shell, run `pip install -r requirements.txt` to install dependencies for the project
 
 # Running the project
-- src/main.py is the "server" script that starts up connections to MariaDB and starts a Flask API 
-- `python3 -m flask --app src/main run`  should start up a server.  The `Error connecting to MariaDB Platform: Can't connect to server on '192.0.2.1' (110)` is expected.
+- `python -m flask --app src/server init-db` to initialize the database 
+- `python -m flask --app src/main run` should start up a server.  
 - `python src/ids/lccde/lccde_globecom.py` will run the LCCDE algorithm, you should try this so that you can get an idea of how the engine works and what its I/O is.
 
 

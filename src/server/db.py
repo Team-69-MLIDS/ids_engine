@@ -1,3 +1,6 @@
+### Database related functions go here
+### The database is initialized here as well, creating tables and populating tables with data. 
+
 from flask import Flask, jsonify, request, current_app, g
 import sqlite3
 import csv
