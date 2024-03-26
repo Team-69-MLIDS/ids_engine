@@ -1,6 +1,9 @@
 import os
 import sqlite3
-from flask import Flask, jsonify, request, current_app, g
+from flask import Flask, jsonify, request, current_app, g 
+from flask_cors import CORS
+
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -8,6 +11,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         DATABASE=os.path.join(app.instance_path, 'ids.sqlite'),
     )
+    cors = CORS(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
