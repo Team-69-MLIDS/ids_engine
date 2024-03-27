@@ -27,12 +27,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/dataset"
                 
-  "/algorithm_names":
+  "/model_names":
     get:
       tags: ["Configuration"]
-      summary: Returns list of names of algorithms that can be ran on the engine
-      description: Algorithm names 
-      operationId: getAlgorithmNames
+      summary: Returns list of names of models that can be ran on the engine
+      description: Get model names 
+      operationId: getModelNames
       responses:
         "200":
           description: Success
