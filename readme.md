@@ -25,7 +25,7 @@
 
 # Running the project
 - `python -m flask --app src/server init-db` to initialize the database 
-- `python -m flask --app src/main run` should start up a server.  
+- `python -m flask --app src/server run` should start up a server.  
 - `python src/ids/lccde/lccde_globecom.py` will run the LCCDE algorithm, you should try this so that you can get an idea of how the engine works and what its I/O is.
 
 
