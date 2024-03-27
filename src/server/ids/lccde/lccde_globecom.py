@@ -16,6 +16,11 @@ from statistics import mode
 from imblearn.over_sampling import SMOTE
 
 
+BASE_LEARNERS = [
+        'XGBClassifier', 'LGBMClassifier', 'CatBoostClassifier'
+]
+
+
 # load the data
 df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
 

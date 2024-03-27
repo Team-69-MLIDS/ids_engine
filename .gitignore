@@ -3,3 +3,7 @@
 /src/__pycache__/
 /src/server/__pycache__/
 /src/instance/
+src/server/ids/__pycache__/__init__.cpython-311.pyc
+src/server/ids/lccde/__pycache__/__init__.cpython-311.pyc
+src/server/ids/mth/__pycache__/__init__.cpython-311.pyc
+src/server/ids/treebased/__pycache__/__init__.cpython-311.pyc

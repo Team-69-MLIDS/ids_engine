@@ -7,6 +7,14 @@ import csv
 from uuid import uuid4
 import click
 
+
+from .ids import lccde, mth, treebased
+
+print(lccde.BASE_LEARNERS)
+print(mth.BASE_LEARNERS)
+print(treebased.BASE_LEARNERS)
+
+
 def get_db() -> sqlite3.Connection:
     if 'db' not in g:
         g.db = sqlite3.connect(current_app.config['DATABASE'], timeout=20)
@@ -23,7 +31,9 @@ def init_db():
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
-    sql = 'INSERT INTO Hyperparameter(id, base_learner_name, name, description, datatype_hint, optional, default_value) VALUES(?, ?, ?, ?, ?, ?, ?)'
+    sql = r'''
+    INSERT INTO Hyperparameter(id, base_learner_name, name, description, datatype_hint, optional, default_value) VALUES(?, ?, ?, ?, ?, ?, ?)
+    '''
     # import hyperparameters
     with open('hyperparams.csv') as xgboost_params:
         reader = csv.reader(xgboost_params)
@@ -37,6 +47,14 @@ def init_db():
             datatype_hint = row[2]
             db.execute(sql, (str(uuid4()), base_learner_name, name, description, datatype_hint, optional, default))
             db.commit()
+
+    
+    sql = r'''
+    INSERT OR IGNORE INTO BaseLearners(name) VALUES 
+    ('XGBClassifer'),
+    ('CatBoostClassifier'),
+    ('LGBMClassifier'),
+    '''
 
 @click.command('init-db')
 def init_db_cmd():

@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `LearnerConfig`(
 
 
 INSERT OR IGNORE INTO AttackClassification(name) VALUES ("BENIGN"), ("Bot"), ("BruteForce"), ("DoS"), ("Infiltration"), ("PortScan"), ("WebAttack");
-INSERT OR IGNORE INTO BaseLearner(name) VALUES ("XGBoostClassifier"),("CatBoostClassifer"),("LGBMClassifer");
+INSERT OR IGNORE INTO BaseLearner(name) VALUES ("XGBClassifier"),("CatBoostClassifer"),("LGBMClassifer");
+INSERT OR IGNORE INTO DetectionModel(name) VALUES ("lccde"), ("mth"), ("treebased");
 -- INSERT OR IGNORE INTO Initialized(Initialized) (0);
 -- INSERT OR IGNORE INTO datatype(datatype) values ('string'),('number'),('int'),('float');

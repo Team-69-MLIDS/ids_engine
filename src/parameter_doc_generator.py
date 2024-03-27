@@ -27,6 +27,13 @@ ALGORITHM_NAMES = [
         'XGBClassifier',
         ]
 
+from sklearn.tree import DecisionTreeClassifier
+
+t = parse_from_object(DecisionTreeClassifier)
+for p in t.params:
+    print(p.arg_name)
+
+pass
 log.debug('Parsing hyperparameters')
 with open('hyperparams.csv', mode='w+', newline='') as csvfile: 
     csv_writer = csv.writer(csvfile)
