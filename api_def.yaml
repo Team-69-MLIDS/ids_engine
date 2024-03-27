@@ -61,7 +61,6 @@ paths:
           schema:
             type: string
           description: Run ID to match
-      summary: Returns past runs
       responses:
         "200":
           description: Success
@@ -89,10 +88,10 @@ paths:
         operationId: getHyperparameters
         parameters:
         - in: query
-          name: learner 
+          name: model 
           schema:
             type: string
-          description: Name of the learner to retrieve hyperparameters for
+          description: Name of the model to retrieve hyperparameters for
           required: false
         responses:
           "200": 

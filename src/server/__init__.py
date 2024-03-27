@@ -29,7 +29,6 @@ def create_app(test_config=None):
     from . import db
     db.init_db_instance(app)
 
-    # a simple page that says hello
     @app.route('/api/hyperparameters')
     def hello():
         con = db.get_db()
@@ -38,8 +37,26 @@ def create_app(test_config=None):
         print("model: ", model)
 
         if model is not None: 
-            #TODO get all algorithms in the model, and return all the hyperparameters for each algorithm in the model
-            learners = con.execute('SELECT DISTINCT base_learner_name from hyperparameter WHERE model=').fetchall()
+            sql = rf'''SELECT h.* 
+            FROM Hyperparameter h
+            JOIN LearnsWith lw ON h.base_learner_name = lw.base_learner_name
+            WHERE lw.detection_model_name = "{model}";'''
+            learners = con.execute(sql).fetchall()
+            response = dict()
+            for p in learners:
+                base_learner_name = p[3]
+
+                if base_learner_name not in response:
+                    response.update({base_learner_name: []})
+
+                response[base_learner_name].append({
+                    'name': p[2],
+                    'description': p[1],
+                    'optional': p[5],
+                    'default': p[6]
+                    })
+                print(p[2])
+            return jsonify(response)
 
         response = dict()
         learners = con.execute('SELECT DISTINCT base_learner_name from hyperparameter;').fetchall()
@@ -57,7 +74,7 @@ def create_app(test_config=None):
                 'default': p[4]
                 })
             # print(p[0])
-        return response
+        return jsonify(response)
 
 
     return app

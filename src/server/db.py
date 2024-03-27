@@ -48,13 +48,13 @@ def init_db():
             db.execute(sql, (str(uuid4()), base_learner_name, name, description, datatype_hint, optional, default))
             db.commit()
 
-    
-    sql = r'''
-    INSERT OR IGNORE INTO BaseLearners(name) VALUES 
-    ('XGBClassifer'),
-    ('CatBoostClassifier'),
-    ('LGBMClassifier'),
-    '''
+    # populate LearnsWith relation
+    for learner in lccde.BASE_LEARNERS: 
+        db.execute(r'''
+        INSERT OR IGNORE INTO LearnsWith (id, detection_model_name, base_learner_name) VALUES(?, ?, ?)
+                   ''', (str(uuid4()), 'lccde', learner))
+    db.commit()
+
 
 @click.command('init-db')
 def init_db_cmd():
