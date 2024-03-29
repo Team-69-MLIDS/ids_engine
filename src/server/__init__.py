@@ -1,6 +1,5 @@
 import os
 import sqlite3
-from types import MethodDescriptorType
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS
 from pandas.core import methods
@@ -105,24 +104,72 @@ def create_app(test_config=None):
             # print(p[0])
         return jsonify(response)
 
-    def generate_default_run_id():
-        return "default run id" 
 
     @app.route('/api/run', methods=['GET', 'POST'])
     @require_json_fields(['runid', 'model_name', 'hyperparameters'], methods=['POST'])
     def run(): 
+        DB = db.get_db()
         if request.method == 'GET':
             log.info('GET api/run')
         elif request.method == 'POST':
             # extract the params from the request
             run_tag = request.json['runid']
-            model_name = request.json['model_name']
+            model_name = request.json['model_name'].lower()
             hyperparameters = request.json['hyperparameters']
-            print(run_tag, model_name, json.dumps(hyperparameters, sort_keys=True, indent=2), sep='\n' )
+            if 'dataset' in request.json:
+                dataset = request.json['dataset'] 
+            else: 
+                dataset = 'CICIDS2017_sample_km.csv' # dataset is optional 
 
-            # TODO(tristan): validate each learner in hyperparameters exists
-            # TODO(tristan): LOW PRIO validate all hyperparameters exist in the db as an easy way to check obvious errors
-            run = lccde.train_model(run_tag, learner_configuration_map={})
+
+            if model_name == 'lccde':
+                # source of truth
+                base_learners = db.get_base_learners_for_model(DB, 'lccde')
+                
+                for learner_name, params in hyperparameters.items(): 
+                    # verify learners in request exist in db
+                    if learner_name not in base_learners:
+                        return jsonify({'error': f'`{learner_name} is not a base learner used in `{model_name}.'}), 400
+
+                    requested_params = {x['parameter_name']: x['value'] for x in params}
+                    print(requested_params)
+                    truth_params = db.get_hyperparameters_for_learner(DB, learner_name)
+
+                    for param_name, value in requested_params.items():
+                        # validate all hyperparameters exist in the db as an easy way to check obvious errors
+                        hp = [hp for hp in truth_params if hp.name == param_name]
+                        if len(hp) == 0:
+                            return jsonify({'error': f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'}), 400
+
+                        hp = hp[0]
+                        # do basic type conversion, defaulting to string if there is not a simple/known type 
+                        old_val = value
+
+                        try:
+                            if hp.datatype_hint == 'int' or hp.datatype_hint == 'integer':
+                                requested_params[param_name] = int(value)
+                            elif hp.datatype_hint == 'float':
+                                requested_params[param_name] = float(value)
+                            elif hp.datatype_hint == 'bool':
+                                requested_params[param_name] = bool(value)
+                            elif hp.datatype_hint == 'str' or hp.datatype_hint == 'string':
+                                requested_params[param_name] = str(value)
+                            else:
+                                pass # its ok to leave as a string... hopefully!
+                        except ValueError: 
+                            # revert 
+                            requested_params[param_name] = str(old_val)
+                
+                    print(learner_name, json.dumps(requested_params))
+
+                # run = lccde.train_model(run_tag, xgboost_args, catboost_args, lightgbm_args, dataset=dataset)
+            elif model_name == 'mth':
+                # run = mth.train_model(run_tag, learner_configuration_map={})
+                pass
+            elif model_name == 'treebased':
+                # run = treebased.train_model(run_tag, learner_configuration_map={})
+                pass
+
 
             # TODO(tristan): store the `run` 
             log.info('POST api/run')

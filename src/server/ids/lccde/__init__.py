@@ -62,16 +62,20 @@ class Run:
     timestamp: str
 
 
-def train_model(run_tag: str, learner_configuration_map: dict[str, dict[str, Any]]) -> Run|None: 
+def train_model(run_tag: str, 
+                xgboost_args, 
+                catboost_args,
+                lightgbm_args,
+                dataset: None|str) -> Run|None: 
+
     DETECTION_MODEL_NAME = 'lccde'
-    LEARNER_CONFIGS = learner_configuration_map
     TIMESTAMP = datetime.now()
     XGBOOST_PERFS = []
     CATBOOST_PERFS = []
     LIGHTGBM_PERFS = []
     
 
-    log.info('running LCCDE ')
+    log.info('Running LCCD...')
     # load the data
     df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
 
@@ -120,7 +124,7 @@ def train_model(run_tag: str, learner_configuration_map: dict[str, dict[str, Any
 
     	# Train the XGBoost algorithm
     import xgboost as xgb
-    xg = xgb.XGBClassifier()
+    xg = xgb.XGBClassifier(**xgboost_args)
 
     X_train_x = X_train.values
     X_test_x = X_test.values

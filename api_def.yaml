@@ -81,9 +81,13 @@ paths:
               type: object
               properties:
                 model_name:
+                  required: true
                   type: string
                 runid: 
                   type: string
+                dataset: 
+                  type: string
+
                 hyperparameters:
                   type: object
                   additionalProperties:

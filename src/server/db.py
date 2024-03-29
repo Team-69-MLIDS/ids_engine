@@ -7,6 +7,7 @@ import csv
 from uuid import uuid4
 import click
 from .ids import lccde, mth, treebased
+from dataclasses import dataclass
 
 
 
@@ -59,4 +60,46 @@ def init_db_cmd():
 def init_db_instance(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_cmd)
+
+@dataclass 
+class Hyperparameter:
+    id: str
+    description: str
+    name: str
+    base_learner_name: str
+    datatype_hint: str
+    optional: str
+    default_value: str
+
+def get_hyperparameters_for_learner(db: sqlite3.Connection, learner: str) -> list[Hyperparameter]:
+    sql = rf'''
+    SELECT * from Hyperparameter WHERE base_learner_name="{learner}";
+    '''
+    result: list[Hyperparameter] = []
+    for row in db.execute(sql).fetchall():
+        result.append(Hyperparameter(*row))
+
+    return result
+
+
+@dataclass 
+class BaseLearner:
+    name: str
+
+def get_base_learners_for_model(db: sqlite3.Connection, model: str) -> list[BaseLearner]: 
+    sql = rf'''
+    SELECT base_learner_name from LearnsWith WHERE detection_model_name="{model}";
+    '''
+    return [x[0] for x in db.execute(sql).fetchall()]
+
+
+
+
+
+
+
+
+
+
+
 
