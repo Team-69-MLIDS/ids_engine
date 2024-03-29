@@ -6,7 +6,7 @@ info:
     name: Team 69
     url: "https://github.com/team-69-mlids"
     email: tmc190005@utdallas.edu
-  version: 0.1.0
+  version: 0.1.1
 
 servers: 
 - url: https://localhost:5000/api
@@ -70,9 +70,35 @@ paths:
                 $ref: "#/components/schemas/run"
     post:
       tags: ["Execution"]
+      summary: Submit hyperparameters and train the selected algorithm
       description: Submit hyperparameters and train the selected algorithm
       operationId: submitAndExecute
-        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model_name:
+                  type: string
+                runid: 
+                  type: string
+                hyperparameters:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        parameter_name:
+                          type: string
+                          description: The key of the key-value pair
+                        value:
+                          type: string
+                          description: The value of the key-value pair
+                    
+                    
       responses: 
         "200":
           description: Ok
@@ -135,7 +161,7 @@ components:
       example: 
         algorithm: "LCCDE"
         runid: "Testing High Learning Rate"
-        date: "2020-07-15 14:30:26.159446"
+        timestamp: "2020-07-15 14:30:26.159446"
         enemble: [{model_name: "lccde", confusion_matrix: [[1, 1, 1, 1, 1,]], f1_score: 1.0, precision: 1.0, recall: 0.9, macro_avg: 1.0, weighted_avg: 0.9}]
       properties:
         ensemble:

@@ -2,6 +2,11 @@ import os
 import sqlite3
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS
+import structlog
+
+from server.ids import lccde
+structlog.stdlib.recreate_defaults()
+log = structlog.get_logger('main')
 
 def create_app(test_config=None):
     # create and configure the app
@@ -30,13 +35,12 @@ def create_app(test_config=None):
     db.init_db_instance(app)
 
     @app.route('/api/hyperparameters')
-    def hello():
+    def hyperparameters():
         con = db.get_db()
 
         model = request.args.get('model')
-        print("model: ", model)
-
         if model is not None: 
+            log.info(f'finding hyperparameters for {model}')
             sql = rf'''SELECT h.* 
             FROM Hyperparameter h
             JOIN LearnsWith lw ON h.base_learner_name = lw.base_learner_name
@@ -55,7 +59,6 @@ def create_app(test_config=None):
                     'optional': p[5],
                     'default': p[6]
                     })
-                print(p[2])
             return jsonify(response)
 
         response = dict()
@@ -76,5 +79,18 @@ def create_app(test_config=None):
             # print(p[0])
         return jsonify(response)
 
+    def generate_default_run_tag():
+        return "default run id" 
+
+    @app.route('/api/run', methods=['GET', 'POST'])
+    def run(): 
+        if request.method == 'GET':
+            log.info('GET api/run')
+        elif request.method == 'POST':
+            # extract the params from the request
+            run_tag = request.args.get('run_tag') or generate_default_run_tag()
+            lccde.train_model(run_tag, learner_configuration_map={})
+            log.info('POST api/run')
+        return jsonify("run!")
 
     return app

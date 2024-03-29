@@ -6,13 +6,8 @@ import sqlite3
 import csv
 from uuid import uuid4
 import click
-
-
 from .ids import lccde, mth, treebased
 
-print(lccde.BASE_LEARNERS)
-print(mth.BASE_LEARNERS)
-print(treebased.BASE_LEARNERS)
 
 
 def get_db() -> sqlite3.Connection:
