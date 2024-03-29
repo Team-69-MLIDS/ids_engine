@@ -1,7 +1,9 @@
 import os
 import sqlite3
+from types import MethodDescriptorType
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS
+from pandas.core import methods
 import structlog
 import json
 from functools import wraps
@@ -10,10 +12,13 @@ from server.ids import lccde
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('main')
 
-def require_json_fields(fields):
+def require_json_fields(fields, methods):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
+            if request.method not in methods:
+                return f(*args, **kwargs)
+
             if not request.is_json:
                 return jsonify({'error': 'Request must be JSON.'}), 400
 
@@ -104,7 +109,7 @@ def create_app(test_config=None):
         return "default run id" 
 
     @app.route('/api/run', methods=['GET', 'POST'])
-    @require_json_fields(['runid', 'model_name', 'hyperparameters'])
+    @require_json_fields(['runid', 'model_name', 'hyperparameters'], methods=['POST'])
     def run(): 
         if request.method == 'GET':
             log.info('GET api/run')
@@ -115,7 +120,11 @@ def create_app(test_config=None):
             hyperparameters = request.json['hyperparameters']
             print(run_tag, model_name, json.dumps(hyperparameters, sort_keys=True, indent=2), sep='\n' )
 
-            # lccde.train_model(run_tag, learner_configuration_map={})
+            # TODO(tristan): validate each learner in hyperparameters exists
+            # TODO(tristan): LOW PRIO validate all hyperparameters exist in the db as an easy way to check obvious errors
+            run = lccde.train_model(run_tag, learner_configuration_map={})
+
+            # TODO(tristan): store the `run` 
             log.info('POST api/run')
         return jsonify("run!")
 
