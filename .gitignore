@@ -7,3 +7,6 @@ src/server/ids/__pycache__/__init__.cpython-311.pyc
 src/server/ids/lccde/__pycache__/__init__.cpython-311.pyc
 src/server/ids/mth/__pycache__/__init__.cpython-311.pyc
 src/server/ids/treebased/__pycache__/__init__.cpython-311.pyc
+catboost_confusion_matrix.png
+lightgbm_confusion_matrix.png
+xgboost_confusion_matrix.png

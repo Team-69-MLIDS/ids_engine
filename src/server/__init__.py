@@ -3,10 +3,31 @@ import sqlite3
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS
 import structlog
+import json
+from functools import wraps
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('main')
+
+def require_json_fields(fields):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if not request.is_json:
+                return jsonify({'error': 'Request must be JSON.'}), 400
+
+            json_data = request.get_json()
+
+            missing_fields = [field for field in fields if field not in json_data]
+
+            if missing_fields:
+                return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+
+            return f(*args, **kwargs)
+
+        return wrapper
+    return decorator
 
 def create_app(test_config=None):
     # create and configure the app
@@ -79,17 +100,22 @@ def create_app(test_config=None):
             # print(p[0])
         return jsonify(response)
 
-    def generate_default_run_tag():
+    def generate_default_run_id():
         return "default run id" 
 
     @app.route('/api/run', methods=['GET', 'POST'])
+    @require_json_fields(['runid', 'model_name', 'hyperparameters'])
     def run(): 
         if request.method == 'GET':
             log.info('GET api/run')
         elif request.method == 'POST':
             # extract the params from the request
-            run_tag = request.args.get('run_tag') or generate_default_run_tag()
-            lccde.train_model(run_tag, learner_configuration_map={})
+            run_tag = request.json['runid']
+            model_name = request.json['model_name']
+            hyperparameters = request.json['hyperparameters']
+            print(run_tag, model_name, json.dumps(hyperparameters, sort_keys=True, indent=2), sep='\n' )
+
+            # lccde.train_model(run_tag, learner_configuration_map={})
             log.info('POST api/run')
         return jsonify("run!")
 
