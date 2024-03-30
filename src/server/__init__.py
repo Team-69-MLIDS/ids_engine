@@ -6,6 +6,7 @@ from pandas.core import methods
 import structlog
 import json
 from functools import wraps
+from glob import glob
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -175,7 +176,7 @@ def create_app(test_config=None):
             log.info('POST api/run')
         return jsonify("run!")
 
-    @app.route('/api/models',  methods=["GET"])
+    @app.route('/api/model_names',  methods=["GET"])
     def models(): 
         sql = r'''
         SELECT * from DetectionModel;
@@ -183,6 +184,12 @@ def create_app(test_config=None):
         DB = db.get_db()
         algs = DB.execute(sql).fetchall()
         return [x[0] for x in algs]
+
+    @app.route('/api/datasets',  methods=["GET"])
+    def datasets(): 
+        return jsonify(glob('data/*.csv'))
+
+
 
 
 
