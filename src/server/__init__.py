@@ -175,4 +175,16 @@ def create_app(test_config=None):
             log.info('POST api/run')
         return jsonify("run!")
 
+    @app.route('/api/models',  methods=["GET"])
+    def models(): 
+        sql = r'''
+        SELECT * from DetectionModel;
+        '''
+        DB = db.get_db()
+        algs = DB.execute(sql).fetchall()
+        return [x[0] for x in algs]
+
+
+
+
     return app
