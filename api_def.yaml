@@ -162,48 +162,48 @@ components:
           
     run:
       type: object
-      example: 
-        algorithm: "LCCDE"
-        runid: "Testing High Learning Rate"
-        timestamp: "2020-07-15 14:30:26.159446"
-        enemble: [{model_name: "lccde", confusion_matrix: [[1, 1, 1, 1, 1,]], f1_score: 1.0, precision: 1.0, recall: 0.9, macro_avg: 1.0, weighted_avg: 0.9}]
       properties:
+        confusion_matrices:
+          type: object
+          description: confusion matrices for each learner
+          additionalProperties:
+            type: array
+            description: confusion matrix
+
+
+
+
         ensemble:
-          type: array
-          description: Array containing performance metrics for each model in the ensemble
-          items:
+          type: object
+          description: Evaluation results for different models in the ensemble.
+          additionalProperties:
+            type: array
+            description: Evaluation results for each algorithm used in the model.
+            items:
               type: object
-              description: result 
               properties:
-                model_name:
-                  type: string
-                  description: the model (eg, XGboost)
-                confusion_matrix: 
-                  type: array
-                  items: 
-                    type: number
                 f1_score: 
-                  type: number
-                  description: performance metric
+                   type: number
+                   description: performance metric
                 precision: 
-                  type: number
-                  description: performance metric
+                   type: number
+                   description: performance metric
                 recall: 
-                  type: number
-                  description: performance metric
+                    type: number
+                    description: performance metric
                 macro_avg: 
-                  type: number
-                  description: performance metric
+                    type: number
+                    description: performance metric
                 weighted_avg: 
-                  type: number
-                  description: performance metric
-        algorithm:
+                    type: number
+                    description: performance metric
+        model:
           type: string
-          description: Name of the algorithm used 
+          description: Name of the model used 
         runid:
           type: string
           description: RunID provided by user when submitted
-        tiemstamp: 
+        timestamp: 
           type: string
           description: Date of submission in `mm-dd-yyyy hh:mm::ss` format
     
@@ -219,5 +219,31 @@ components:
             optional:
                 type: boolean
             
+
             
-        
+        #       type: object
+        #       description: result 
+        #       properties:
+        #         algorithm_name:
+        #           type: string
+        #           description: the algorithm (eg, XGboost)
+        #         confusion_matrix: 
+        #           type: array
+        #           items: 
+        #             type: number
+        #         f1_score: 
+        #           type: number
+        #           description: performance metric
+        #         precision: 
+        #           type: number
+        #           description: performance metric
+        #         recall: 
+        #           type: number
+        #           description: performance metric
+        #         macro_avg: 
+        #           type: number
+        #           description: performance metric
+        #         weighted_avg: 
+        #           type: number
+        #           description: performance metric
+        # 
