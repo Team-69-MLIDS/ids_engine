@@ -190,8 +190,4 @@ def create_app(test_config=None):
         return jsonify(glob('data/*.csv'))
 
 
-
-
-
-
     return app
