@@ -1,12 +1,13 @@
 import os
 import sqlite3
+from types import MethodDescriptorType
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS
 from pandas.core import methods
 import structlog
 import json
 from functools import wraps
-from glob import glob
+
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -60,6 +61,23 @@ def create_app(test_config=None):
     from . import db
     db.init_db_instance(app)
 
+    @app.route('/api/algorithm_names')
+    def hello():
+        con = db.get_db()
+
+        algorithm_names = con.execute('SELECT DISTINCT name FROM DetectionModel;').fetchall()
+
+        names = []
+        for name in algorithm_names:
+            names.append(name[0])
+
+        dict = {
+            "algorithms": names
+        }
+
+        return dict
+
+
     @app.route('/api/hyperparameters')
     def hyperparameters():
         con = db.get_db()
@@ -75,6 +93,7 @@ def create_app(test_config=None):
             response = dict()
             for p in learners:
                 base_learner_name = p[3]
+
                 if base_learner_name not in response:
                     response.update({base_learner_name: []})
 
@@ -82,8 +101,7 @@ def create_app(test_config=None):
                     'name': p[2],
                     'description': p[1],
                     'optional': p[5],
-                    'default': p[6],
-                    'type_hint': p[4] or "unknown"
+                    'default': p[6]
                     })
             return jsonify(response)
 
@@ -94,101 +112,114 @@ def create_app(test_config=None):
     
         print(response)
 
-        params = con.execute('SELECT name, base_learner_name, description, optional, default_value, datatype_hint from hyperparameter;').fetchall()
+        params = con.execute('SELECT name, base_learner_name, description, optional, default_value from hyperparameter;').fetchall()
         for p in params: 
             response[p[1]].append({
                 'name': p[0],
                 'description': p[2],
                 'optional': p[3],
-                'default': p[4],
-                'type_hint': p[5] or "unknown"
+                'default': p[4]
                 })
             # print(p[0])
         return jsonify(response)
 
+    def generate_default_run_id():
+        return "default run id" 
+
+
+    import datetime
+    from dateutil.parser import parse
 
     @app.route('/api/run', methods=['GET', 'POST'])
     @require_json_fields(['runid', 'model_name', 'hyperparameters'], methods=['POST'])
+    @require_json_fields(['runid'], methods=['GET'])
     def run(): 
-        DB = db.get_db()
         if request.method == 'GET':
             log.info('GET api/run')
+
+            con = db.get_db()
+
+            fromV = request.args.get('from')
+            till = request.args.get('till')
+            runid = request.args.get('runid')
+
+            if fromV is not None:
+                fromTimestamp = parse(fromV, None).strftime("%Y-%m-%d %H:%M:%S")
+            if till is not None:
+                tillDate = parse(till, None)
+                tillDateTimestamp = tillDate.strftime("%Y-%m-%d %H:%M:%S")
+                tillDateNoTime = tillDate.strftime("%Y-%m-%d 00:00:00")
+
+                if tillDateTimestamp == tillDateNoTime:
+                    tillTimestamp = tillDate + datetime.timedelta(days=1) - datetime.timedelta(seconds=1)
+                else:
+                    tillTimestamp = tillDate
+
+            if runid is not None:
+                if fromV is not None and till is not None:
+                    sql = "SELECT * FROM run WHERE (timestamp BETWEEN '" + fromTimestamp + "' AND '" + tillTimestamp + "') AND id = '"+runid+"';"
+                elif fromV is not None:
+                    sql = "SELECT * FROM run WHERE (timestamp >= '" + fromTimestamp + "') AND id = '"+runid+"';"
+                elif till is not None:
+                    sql = "SELECT * FROM run WHERE (timestamp <= '" + tillTimestamp + "') AND id = '"+runid+"';"
+                else:
+                    sql = "SELECT * FROM run WHERE id = '"+runid+"';"
+            else:
+                raise Exception("No run id provided. Please provide one")
+
+            receivedRuns = con.execute(sql).fetchall()
+            runs = []
+
+            for run in receivedRuns:
+                algorithm = run[3]
+                runId = run[0]
+                timestamp = run[1]
+
+                model_name = run[3]
+                confusion_matrix = [1,1,1,1,1]
+
+                sql2 = "SELECT * FROM PrefMetric WHERE run_id = '"+ runid +" LIMIT 1';"
+                prefMetric = con.execute(sql2).fetchall()[0]
+
+                f1_score = prefMetric[2]
+                precision = prefMetric[3]
+                recall = prefMetric[5]
+                macro_avg = prefMetric[6]
+                weighted_avg = prefMetric[7]
+
+                dict = {
+                    "algorithm": algorithm,
+                    "runid": runId,
+                    "timestamp": timestamp,
+                    "enemble": [
+                        {
+                            "model_name": model_name,
+                            "confusion_matrix": [confusion_matrix],
+                            "f1_score": f1_score,
+                            "precision": precision,
+                            "recall": recall,
+                            "macro_avg": macro_avg,
+                            "weighted_avg": weighted_avg
+                        }
+                    ]
+                }
+                runs.append(dict)
+
+            return runs
+
         elif request.method == 'POST':
             # extract the params from the request
             run_tag = request.json['runid']
-            model_name = request.json['model_name'].lower()
+            model_name = request.json['model_name']
             hyperparameters = request.json['hyperparameters']
-            if 'dataset' in request.json:
-                dataset = request.json['dataset'] 
-            else: 
-                dataset = 'CICIDS2017_sample_km.csv' # dataset is optional 
+            print(run_tag, model_name, json.dumps(hyperparameters, sort_keys=True, indent=2), sep='\n' )
 
-
-            if model_name == 'lccde':
-                # source of truth
-                base_learners = db.get_base_learners_for_model(DB, 'lccde')
-                
-                for learner_name, params in hyperparameters.items(): 
-                    # verify learners in request exist in db
-                    if learner_name not in base_learners:
-                        return jsonify({'error': f'`{learner_name} is not a base learner used in `{model_name}.'}), 400
-
-                    requested_params = {x['parameter_name']: x['value'] for x in params}
-                    print(requested_params)
-                    truth_params = db.get_hyperparameters_for_learner(DB, learner_name)
-
-                    for param_name, value in requested_params.items():
-                        # validate all hyperparameters exist in the db as an easy way to check obvious errors
-                        hp = [hp for hp in truth_params if hp.name == param_name]
-                        if len(hp) == 0:
-                            return jsonify({'error': f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'}), 400
-
-                        hp = hp[0]
-                        # do basic type conversion, defaulting to string if there is not a simple/known type 
-                        old_val = value
-
-                        try:
-                            if hp.datatype_hint == 'int' or hp.datatype_hint == 'integer':
-                                requested_params[param_name] = int(value)
-                            elif hp.datatype_hint == 'float':
-                                requested_params[param_name] = float(value)
-                            elif hp.datatype_hint == 'bool':
-                                requested_params[param_name] = bool(value)
-                            elif hp.datatype_hint == 'str' or hp.datatype_hint == 'string':
-                                requested_params[param_name] = str(value)
-                            else:
-                                pass # its ok to leave as a string... hopefully!
-                        except ValueError: 
-                            # revert 
-                            requested_params[param_name] = str(old_val)
-                
-                    print(learner_name, json.dumps(requested_params))
-
-                # run = lccde.train_model(run_tag, xgboost_args, catboost_args, lightgbm_args, dataset=dataset)
-            elif model_name == 'mth':
-                # run = mth.train_model(run_tag, learner_configuration_map={})
-                pass
-            elif model_name == 'treebased':
-                # run = treebased.train_model(run_tag, learner_configuration_map={})
-                pass
-
+            # TODO(tristan): validate each learner in hyperparameters exists
+            # TODO(tristan): LOW PRIO validate all hyperparameters exist in the db as an easy way to check obvious errors
+            run = lccde.train_model(run_tag, learner_configuration_map={})
 
             # TODO(tristan): store the `run` 
             log.info('POST api/run')
         return jsonify("run!")
-
-    @app.route('/api/model_names',  methods=["GET"])
-    def models(): 
-        sql = r'''
-        SELECT * from DetectionModel;
-        '''
-        DB = db.get_db()
-        algs = DB.execute(sql).fetchall()
-        return [x[0] for x in algs]
-
-    @app.route('/api/datasets',  methods=["GET"])
-    def datasets(): 
-        return jsonify(glob('data/*.csv'))
-
 
     return app
