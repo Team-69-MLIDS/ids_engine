@@ -83,7 +83,8 @@ def create_app(test_config=None):
                     'name': p[2],
                     'description': p[1],
                     'optional': p[5],
-                    'default': p[6]
+                    'default': p[6],
+                    'type_hint': p[4],
                     })
             return jsonify(response)
 
@@ -94,13 +95,14 @@ def create_app(test_config=None):
     
         print(response)
 
-        params = con.execute('SELECT name, base_learner_name, description, optional, default_value from hyperparameter;').fetchall()
+        params = con.execute('SELECT name, base_learner_name, description, optional, default_value, datatype_hint from hyperparameter;').fetchall()
         for p in params: 
             response[p[1]].append({
                 'name': p[0],
                 'description': p[2],
                 'optional': p[3],
-                'default': p[4]
+                'default': p[4],
+                'type_hint': p[5]
                 })
             # print(p[0])
         return jsonify(response)
