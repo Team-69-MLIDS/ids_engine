@@ -7,6 +7,7 @@ import structlog
 import json
 from functools import wraps
 from glob import glob
+import base64
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -163,7 +164,6 @@ def create_app(test_config=None):
                             # revert 
                             requested_params[param_name] = str(old_val)
                 
-                    print(learner_name, json.dumps(requested_params))
 
                 # run = lccde.train_model(run_tag, xgboost_args, catboost_args, lightgbm_args, dataset=dataset)
             elif model_name == 'mth':
@@ -190,6 +190,20 @@ def create_app(test_config=None):
     @app.route('/api/datasets',  methods=["GET"])
     def datasets(): 
         return jsonify(glob('data/*.csv'))
+
+    @app.route('/api/test_confusion_matrix')
+    def be_confused():
+        if request.method == 'GET':
+            with open('xgboost_confusion_matrix.png', 'rb') as f:
+                data = f.read()
+                return jsonify({
+                               'b64_image': base64.b64encode(data).decode('utf-8'),
+                               'info': "you can either convert this image into a actual DOM javascript image by converting it back to bytes and feeding the bytes to the image constructor, or you can directly embed the base64 in the image tag. Ping me if u want help"
+                })
+        else:
+            return jsonify("use GET"), 400
+
+
 
 
     return app

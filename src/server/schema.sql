@@ -31,12 +31,23 @@ CREATE TABLE IF NOT EXISTS `AttackClassification`(
     PRIMARY KEY(`name`)
 );
 
+CREATE TABLE IF NOT EXISTS `ConfusionMatrix`(
+    id UUID NOT NULL,
+    run_id UUID NOT NULL,
+    base_learner_name TEXT NOT NULL,
+    detection_model_name TEXT NOT NULL,
+    confusion_matrix_image TEXT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (`run_id`) REFERENCES `Run` (`id`),
+    FOREIGN KEY (`base_learner_name`) REFERENCES `BaseLearner` (`name`),
+    FOREIGN KEY (`detection_model_name`) REFERENCES `DetectionModel` (`name`)
+);
+
 CREATE TABLE IF NOT EXISTS `Run`(
     id UUID NOT NULL,
     timestamp TEXT NOT NULL, 
     run_tag TEXT,                       -- the user provided run id
     detection_model_name TEXT NOT NULL,
-
     PRIMARY KEY (id),
     FOREIGN KEY (`detection_model_name`) REFERENCES `DetectionModel` (`name`)
 );
@@ -57,9 +68,7 @@ CREATE TABLE IF NOT EXISTS `PerfMetric`(
     FOREIGN KEY (`BaseLearner_name`) REFERENCES `BaseLearner` (`name`),
     FOREIGN KEY (`AttackClassification_id`) REFERENCES `AttackClassification` (`name`),
     FOREIGN KEY (`run_id`) REFERENCES `Run` (`id`)
-
 );
-
 
 CREATE TABLE IF NOT EXISTS `Hyperparameter`(
     id UUID NOT NULL,
