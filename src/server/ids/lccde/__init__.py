@@ -59,12 +59,13 @@ class Run:
     id: str
     detection_model_name: str
     run_tag: str
-    learner_performance_per_attack: dict[str, dict[str, PerfMetric]]
+    learner_performance_per_attack: dict[str, list[PerfMetric]]
     learner_configuration: dict[str, dict[str, Any]]
     learner_overalls: dict[str, OverallPerf]
     timestamp: str
     confusion_matrices: dict[str, str]
     dataset: str
+    model_performance: PerfMetric
 
 
 def train_model(run_tag: str, 
@@ -112,35 +113,30 @@ def train_model(run_tag: str,
 
     lg.fit(X_train, y_train)
     y_pred = lg.predict(X_test)
-    lgbm_report: dict = classification_report(y_test, y_pred, output_dict=True)
-    log.debug(json.dumps(lgbm_report, indent=4))
-    OverallPerformance.update({
-        'LGBMClassifier': OverallPerf(
-            accuracy = lgbm_report['accuracy'],
-            macro_avg= lgbm_report['macro avg'],
-            weighted_avg = lgbm_report['weighted avg'],
-        )
-    })
 
-    lgbm_attack_perf: list[PerfMetric] = []
-    for i in range(6):
-        atk = lgbm_report[f'{i}']
-        lgbm_attack_perf.append(PerfMetric(
-            support=atk['support'],
-            f1_score=atk['f1-score'],
-            recall =atk['recall'],
-            precision =atk['precision'],
-        ))
+    def record_stats(name, report): 
+        OverallPerformance.update({
+            name: OverallPerf(
+                accuracy = report['accuracy'],
+                macro_avg= report['macro avg'],
+                weighted_avg = report['weighted avg'],
+            )
+        })
+        perfs = []
+        for i in range(6):
+            atk = report[f'{i}']
+            perfs.append(PerfMetric(
+                support=atk['support'],
+                f1_score=atk['f1-score'],
+                recall =atk['recall'],
+                precision =atk['precision'],
+            ))
+        AttackPerformance.update({name: perfs})
 
-    pprint(lgbm_attack_perf)
+    record_stats('LGBMClassifier', classification_report(y_test, y_pred, output_dict=True))
 
-    AttackPerformance.update({
-        'LGBMClassifier': lgbm_attack_perf
-    })
 
-    pprint( asdict(OverallPerformance['LGBMClassifier']) )
 
-    time.sleep(5)
     print('Accuracy of LightGBM: ' + str(accuracy_score(y_test, y_pred)))
     print('Precision of LightGBM: ' + str(precision_score(y_test, y_pred, average='weighted')))
     print('Recall of LightGBM: ' + str(recall_score(y_test, y_pred, average='weighted')))
@@ -183,6 +179,7 @@ def train_model(run_tag: str,
     print('F1 of XGBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     xg_f1=f1_score(y_test, y_pred, average=None)
 
+    record_stats('XGBClassifier', classification_report(y_test, y_pred, output_dict=True))
     	# Plot the confusion matrix
     cm=confusion_matrix(y_test,y_pred)
     f,ax=plt.subplots(figsize=(5,5))
@@ -199,7 +196,6 @@ def train_model(run_tag: str,
     else:
         cb = cbt.CatBoostClassifier(verbose=0,boosting_type='Plain')
 
-	#cb = cbt.CatBoostClassifier()
 
     cb.fit(X_train, y_train)
     y_pred = cb.predict(X_test)
@@ -211,9 +207,10 @@ def train_model(run_tag: str,
     print('F1 of CatBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     cb_f1=f1_score(y_test, y_pred, average=None)
 
+    record_stats('CatBoostClassifier', classification_report(y_test, y_pred, output_dict=True))
+
 	# Plot the confusion matrix
     cm=confusion_matrix(y_test,y_pred)
-    print('catboost CM', cm)
     f,ax=plt.subplots(figsize=(5,5))
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
     plt.xlabel('y_pred')
@@ -322,10 +319,25 @@ def train_model(run_tag: str,
     print('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
     print('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
     print('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
-    return Run(id=str(uuid4()),
-               run_tag=run_tag,
-               detection_model_name=DETECTION_MODEL_NAME,
-               learner_configuration=param_dict,
-               learner_performance_per_attack={},
-               timestamp=str(TIMESTAMP),
-               confusion_matrices={})
+
+    pprint(OverallPerformance)
+    pprint(AttackPerformance)
+    run = Run(
+        id=str(uuid4()),
+        run_tag=run_tag,
+        detection_model_name=DETECTION_MODEL_NAME,
+        learner_configuration=param_dict,
+        learner_performance_per_attack=AttackPerformance,
+        timestamp=str(TIMESTAMP),
+        confusion_matrices={},
+        dataset=dataset,
+        learner_overalls=OverallPerformance,
+        model_performance=PerfMetric(
+            f1_score = f1_score(yt, yp, average='weighted'),
+            precision = precision_score(yt, yp, average='weighted'),
+            recall = recall_score(yt, yp, average='weighted'),
+            support=0.0
+        )
+    )
+    pprint(run)
+    return run
