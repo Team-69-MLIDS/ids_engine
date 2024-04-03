@@ -170,9 +170,6 @@ components:
             type: array
             description: confusion matrix
 
-
-
-
         ensemble:
           type: object
           description: Evaluation results for different models in the ensemble.
