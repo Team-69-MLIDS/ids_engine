@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from flask import Flask, jsonify, request, current_app, g 
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from pandas.core import methods
 import structlog
 import json
@@ -41,7 +41,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         DATABASE=os.path.join(app.instance_path, 'ids.sqlite'),
     )
-    cors = CORS(app)
+    CORS(app, supports_credentials=True)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -129,11 +129,13 @@ def create_app(test_config=None):
             if model_name == 'lccde':
                 # source of truth
                 base_learners = db.get_base_learners_for_model(DB, 'lccde')
+                param_dict = dict()
                 
                 for learner_name, params in hyperparameters.items(): 
                     # verify learners in request exist in db
                     if learner_name not in base_learners:
                         return jsonify({'error': f'`{learner_name} is not a base learner used in `{model_name}.'}), 400
+
 
                     requested_params = {x['parameter_name']: x['value'] for x in params}
                     print(requested_params)
@@ -163,9 +165,11 @@ def create_app(test_config=None):
                         except ValueError: 
                             # revert 
                             requested_params[param_name] = str(old_val)
+                        param_dict.update({learner_name: requested_params})
                 
 
-                # run = lccde.train_model(run_tag, xgboost_args, catboost_args, lightgbm_args, dataset=dataset)
+                    log.info('requested_params: ', param_dict)
+                run = lccde.train_model(run_tag, param_dict,  dataset=dataset)
             elif model_name == 'mth':
                 # run = mth.train_model(run_tag, learner_configuration_map={})
                 pass
@@ -179,6 +183,7 @@ def create_app(test_config=None):
         return jsonify("run!")
 
     @app.route('/api/model_names',  methods=["GET"])
+    @cross_origin(supports_credentials=True)
     def models(): 
         sql = r'''
         SELECT * from DetectionModel;

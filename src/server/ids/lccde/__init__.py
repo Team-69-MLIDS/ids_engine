@@ -1,9 +1,9 @@
 # This is based on `LCCDE_IDS_GlobeCom22.ipynb`
 from datetime import datetime
+import io
 from typing import Any
 from uuid import uuid4
 import warnings
-from numpy._typing import NDArray 
 warnings.filterwarnings("ignore")
 import pandas as pd
 import numpy as np
@@ -15,11 +15,14 @@ import lightgbm as lgb
 import catboost as cbt
 import xgboost as xgb
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from river import stream
 from statistics import mode
 from imblearn.over_sampling import SMOTE
 import structlog
+import base64
+import json
+from pprint import pprint
 
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('lccde')
@@ -35,64 +38,66 @@ class PerfMetric:
     support: float
     f1_score: float
     precision: float
-    accuracy: float
     recall: float
+
+@dataclass
+class OverallPerf: 
     macro_avg: float
     weighted_avg: float
+    accuracy: float
 
-# learner_performance_per_attack=  {
-#       xgboost: [attack1Perf, attack2Perf, attack3Perf...]
-#       lightgbm: [attack1Perf, attack2Perf, attack3Perf...]
-#
-# }
+def fig_to_base64(figure): 
+    buf = io.BytesIO()
+    figure.savefig(buf)
+    buf.seek(0)
+    return base64.b64encode(buf.read()).decode('utf-8')
 
-# learner_configuration= {
-#       xgboost: dict[str, Any]
-# 
-# }
-# 
+
 
 @dataclass
 class Run: 
     id: str
     detection_model_name: str
     run_tag: str
-    learner_performance_per_attack: dict[str, list[PerfMetric]]
+    learner_performance_per_attack: dict[str, dict[str, PerfMetric]]
     learner_configuration: dict[str, dict[str, Any]]
+    learner_overalls: dict[str, OverallPerf]
     timestamp: str
+    confusion_matrices: dict[str, str]
+    dataset: str
 
 
 def train_model(run_tag: str, 
-                xgboost_args, 
-                catboost_args,
-                lightgbm_args,
+                param_dict: dict, 
                 dataset: None|str) -> Run|None: 
 
     DETECTION_MODEL_NAME = 'lccde'
     TIMESTAMP = datetime.now()
-    XGBOOST_PERFS = []
-    CATBOOST_PERFS = []
-    LIGHTGBM_PERFS = []
+    Matrix : dict[str, str] = dict()
+    AttackPerformance : dict[str, list[PerfMetric]] = dict()
+    OverallPerformance : dict[str, OverallPerf] = dict()
     
 
     log.info('Running LCCD...')
     # load the data
-    df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
+    if dataset is not None: 
+        df = pd.read_csv(f'./data/{dataset}')
+    else:
+        df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
+        dataset = './data/CICIDS2017_sample_km.csv'
 
-    print(df)
+    log.debug(df)
 
-    print(df.Label.value_counts())
+    log.debug(df.Label.value_counts())
 
-    	# split train set and test set
+    # split train set and test set
     X = df.drop(['Label'],axis=1)
     y = df['Label']
     X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 0.8, test_size = 0.2, random_state = 0) 	#shuffle=False
     print(X_train, X_test, y_train, y_test)
 
-    #	# SMOTE to solve class imbalance
-
+    # SMOTE to solve class imbalance
     pd.Series(y_train).value_counts()
-
     smote=SMOTE(n_jobs=-1, sampling_strategy={2:1000,4:1000})
     X_train, y_train = smote.fit_resample(X_train, y_train)
 
@@ -100,11 +105,42 @@ def train_model(run_tag: str,
     ## Training three base learners lightgbm, xgboost, catboost
 
     # Train the LightGBM algorithm
-    import lightgbm as lgb
-    lg = lgb.LGBMClassifier()
+    if 'LGBMClassifier' in param_dict:
+        lg = lgb.LGBMClassifier(**param_dict['LGBMClassifier'])
+    else: 
+        lg = lgb.LGBMClassifier()
+
     lg.fit(X_train, y_train)
     y_pred = lg.predict(X_test)
-    print(classification_report(y_test,y_pred))
+    lgbm_report: dict = classification_report(y_test, y_pred, output_dict=True)
+    log.debug(json.dumps(lgbm_report, indent=4))
+    OverallPerformance.update({
+        'LGBMClassifier': OverallPerf(
+            accuracy = lgbm_report['accuracy'],
+            macro_avg= lgbm_report['macro avg'],
+            weighted_avg = lgbm_report['weighted avg'],
+        )
+    })
+
+    lgbm_attack_perf: list[PerfMetric] = []
+    for i in range(6):
+        atk = lgbm_report[f'{i}']
+        lgbm_attack_perf.append(PerfMetric(
+            support=atk['support'],
+            f1_score=atk['f1-score'],
+            recall =atk['recall'],
+            precision =atk['precision'],
+        ))
+
+    pprint(lgbm_attack_perf)
+
+    AttackPerformance.update({
+        'LGBMClassifier': lgbm_attack_perf
+    })
+
+    pprint( asdict(OverallPerformance['LGBMClassifier']) )
+
+    time.sleep(5)
     print('Accuracy of LightGBM: ' + str(accuracy_score(y_test, y_pred)))
     print('Precision of LightGBM: ' + str(precision_score(y_test, y_pred, average='weighted')))
     print('Recall of LightGBM: ' + str(recall_score(y_test, y_pred, average='weighted')))
@@ -112,19 +148,26 @@ def train_model(run_tag: str,
     print('F1 of LightGBM for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     lg_f1=f1_score(y_test, y_pred, average=None)
 
-    	# Plot the confusion matrix
+    # Plot the confusion matrix
     cm=confusion_matrix(y_test,y_pred)
     f,ax=plt.subplots(figsize=(5,5))
-    sns.heatmap(cm,annot=True,linewidth=0.5,linecolor='red',fmt='.0f',ax=ax)
+    sns.heatmap(cm, annot=True, linewidth=0.5, linecolor='red', fmt='.0f', ax=ax)
     plt.xlabel('y_pred')
     plt.ylabel('y_true')
     plt.title('lightgbm confusion matrix')
-    plt.savefig('./lightgbm_confusion_matrix.png')
+    Matrix.update({'lightgbm': fig_to_base64(plt)})
+
+    print(fig_to_base64(plt))
+
+    # plt.savefig('./lightgbm_confusion_matrix.png')
 
 
     	# Train the XGBoost algorithm
-    import xgboost as xgb
-    xg = xgb.XGBClassifier(**xgboost_args)
+    if 'XGBClassifier' in param_dict:
+        xg = xgb.XGBClassifier(**param_dict['XGBClassifier'])
+    else:
+        xg = xgb.XGBClassifier()
+
 
     X_train_x = X_train.values
     X_test_x = X_test.values
@@ -151,8 +194,11 @@ def train_model(run_tag: str,
 
 
 	# Train the CatBoost algorithm
-    import catboost as cbt
-    cb = cbt.CatBoostClassifier(verbose=0,boosting_type='Plain')
+    if 'CatBoostClassifier' in param_dict:
+        cb = cbt.CatBoostClassifier(verbose=0,boosting_type='Plain', **param_dict['CatBoostClassifier'])
+    else:
+        cb = cbt.CatBoostClassifier(verbose=0,boosting_type='Plain')
+
 	#cb = cbt.CatBoostClassifier()
 
     cb.fit(X_train, y_train)
@@ -279,6 +325,7 @@ def train_model(run_tag: str,
     return Run(id=str(uuid4()),
                run_tag=run_tag,
                detection_model_name=DETECTION_MODEL_NAME,
-               learner_configuration=LEARNER_CONFIGS,
+               learner_configuration=param_dict,
                learner_performance_per_attack={},
-               timestamp=str(TIMESTAMP))
+               timestamp=str(TIMESTAMP),
+               confusion_matrices={})
