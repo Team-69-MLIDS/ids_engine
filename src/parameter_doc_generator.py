@@ -31,7 +31,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 t = parse_from_object(DecisionTreeClassifier)
 for p in t.params:
-    print(p.arg_name)
+    print('test:', p.arg_name)
 
 pass
 log.debug('Parsing hyperparameters')
@@ -73,8 +73,13 @@ with open('hyperparams.csv', mode='w+', newline='') as csvfile:
             default_value = p.type_name[match.start()+8:match.end()-1]
         else:
             default_value = "No default"
-        # print(p.arg_name, p.type_name, is_optional, default_value, p.description)
-        csv_writer.writerow(('LGBMClassifier', p.arg_name, p.type_name, p.default or "No default", p.description or "No description", is_optional))
+        # extract typename
+        type_hint = p.type_name
+        if p.type_name is not None:
+            m = p.type_name.find(',')
+            type_hint = p.type_name[0:m]
+
+        csv_writer.writerow(('LGBMClassifier', p.arg_name, type_hint, p.default or "No default", p.description or "No description", is_optional))
     log.info('Parsed LGBMClassifier params.' )
 
     # write xgboost params
