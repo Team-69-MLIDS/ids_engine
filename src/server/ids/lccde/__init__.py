@@ -4,7 +4,7 @@ import io
 from typing import Any
 from uuid import uuid4
 import warnings
-warnings.filterwarnings("ignore")
+import matplotlib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,7 +22,8 @@ from imblearn.over_sampling import SMOTE
 import structlog
 import base64
 import json
-from pprint import pprint
+import logging
+matplotlib.set_loglevel('critical')
 
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('lccde')
@@ -70,14 +71,14 @@ class Run:
 
 def train_model(run_tag: str, 
                 param_dict: dict, 
-                dataset: None|str) -> Run|None: 
+                dataset: None|str) -> Run:
 
-    DETECTION_MODEL_NAME = 'lccde'
-    TIMESTAMP = datetime.now()
-    Matrix : dict[str, str] = dict()
-    AttackPerformance : dict[str, list[PerfMetric]] = dict()
-    OverallPerformance : dict[str, OverallPerf] = dict()
-    
+    warnings.filterwarnings("ignore", category=UserWarning)
+    detection_model_name = 'lccde'
+    timestamp = datetime.now()
+    confusion_matrices : dict[str, str] = dict()
+    attack_performance : dict[str, list[PerfMetric]] = dict()
+    overall_performance : dict[str, OverallPerf] = dict()
 
     log.info('Running LCCD...')
     # load the data
@@ -95,7 +96,7 @@ def train_model(run_tag: str,
     X = df.drop(['Label'],axis=1)
     y = df['Label']
     X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 0.8, test_size = 0.2, random_state = 0) 	#shuffle=False
-    print(X_train, X_test, y_train, y_test)
+    log.debug(X_train, X_test, y_train, y_test)
 
     # SMOTE to solve class imbalance
     pd.Series(y_train).value_counts()
@@ -107,15 +108,15 @@ def train_model(run_tag: str,
 
     # Train the LightGBM algorithm
     if 'LGBMClassifier' in param_dict:
-        lg = lgb.LGBMClassifier(**param_dict['LGBMClassifier'])
+        lg = lgb.LGBMClassifier(**param_dict['LGBMClassifier'], verbosity=-1)
     else: 
-        lg = lgb.LGBMClassifier()
+        lg = lgb.LGBMClassifier(verbosity=-1)
 
     lg.fit(X_train, y_train)
     y_pred = lg.predict(X_test)
 
     def record_stats(name, report): 
-        OverallPerformance.update({
+        overall_performance.update({
             name: OverallPerf(
                 accuracy = report['accuracy'],
                 macro_avg= report['macro avg'],
@@ -131,17 +132,17 @@ def train_model(run_tag: str,
                 recall =atk['recall'],
                 precision =atk['precision'],
             ))
-        AttackPerformance.update({name: perfs})
+        attack_performance.update({name: perfs})
 
     record_stats('LGBMClassifier', classification_report(y_test, y_pred, output_dict=True))
 
 
 
-    print('Accuracy of LightGBM: ' + str(accuracy_score(y_test, y_pred)))
-    print('Precision of LightGBM: ' + str(precision_score(y_test, y_pred, average='weighted')))
-    print('Recall of LightGBM: ' + str(recall_score(y_test, y_pred, average='weighted')))
-    print('Average F1 of LightGBM: ' + str(f1_score(y_test, y_pred, average='weighted')))
-    print('F1 of LightGBM for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
+    log.debug('Accuracy of LightGBM: ' + str(accuracy_score(y_test, y_pred)))
+    log.debug('Precision of LightGBM: ' + str(precision_score(y_test, y_pred, average='weighted')))
+    log.debug('Recall of LightGBM: ' + str(recall_score(y_test, y_pred, average='weighted')))
+    log.debug('Average F1 of LightGBM: ' + str(f1_score(y_test, y_pred, average='weighted')))
+    log.debug('F1 of LightGBM for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     lg_f1=f1_score(y_test, y_pred, average=None)
 
     # Plot the confusion matrix
@@ -151,9 +152,9 @@ def train_model(run_tag: str,
     plt.xlabel('y_pred')
     plt.ylabel('y_true')
     plt.title('lightgbm confusion matrix')
-    Matrix.update({'lightgbm': fig_to_base64(plt)})
+    confusion_matrices.update({'LGBMClassifier': fig_to_base64(plt)})
 
-    print(fig_to_base64(plt))
+    # log.debug(fig_to_base64(plt))
 
     # plt.savefig('./lightgbm_confusion_matrix.png')
 
@@ -171,12 +172,12 @@ def train_model(run_tag: str,
     xg.fit(X_train_x, y_train)
 
     y_pred = xg.predict(X_test_x)
-    print(classification_report(y_test,y_pred))
-    print('Accuracy of XGBoost: '+ str(accuracy_score(y_test, y_pred)))
-    print('Precision of XGBoost: '+ str(precision_score(y_test, y_pred, average='weighted')))
-    print('Recall of XGBoost: '+ str(recall_score(y_test, y_pred, average='weighted')))
-    print('Average F1 of XGBoost: '+ str(f1_score(y_test, y_pred, average='weighted')))
-    print('F1 of XGBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
+    log.debug(classification_report(y_test,y_pred))
+    log.debug('Accuracy of XGBoost: '+ str(accuracy_score(y_test, y_pred)))
+    log.debug('Precision of XGBoost: '+ str(precision_score(y_test, y_pred, average='weighted')))
+    log.debug('Recall of XGBoost: '+ str(recall_score(y_test, y_pred, average='weighted')))
+    log.debug('Average F1 of XGBoost: '+ str(f1_score(y_test, y_pred, average='weighted')))
+    log.debug('F1 of XGBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     xg_f1=f1_score(y_test, y_pred, average=None)
 
     record_stats('XGBClassifier', classification_report(y_test, y_pred, output_dict=True))
@@ -187,7 +188,8 @@ def train_model(run_tag: str,
     plt.xlabel('y_pred')
     plt.ylabel('y_true')
     plt.title('xgboost confusion matrix')
-    plt.savefig('./xgboost_confusion_matrix.png')
+    confusion_matrices.update({'XGBClassifier': fig_to_base64(plt)})
+    # plt.savefig('./xgboost_confusion_matrix.png')
 
 
 	# Train the CatBoost algorithm
@@ -199,12 +201,12 @@ def train_model(run_tag: str,
 
     cb.fit(X_train, y_train)
     y_pred = cb.predict(X_test)
-    print(classification_report(y_test,y_pred))
-    print('Accuracy of CatBoost: '+ str(accuracy_score(y_test, y_pred)))
-    print('Precision of CatBoost: '+ str(precision_score(y_test, y_pred, average='weighted')))
-    print('Recall of CatBoost: '+ str(recall_score(y_test, y_pred, average='weighted')))
-    print('Average F1 of CatBoost: '+ str(f1_score(y_test, y_pred, average='weighted')))
-    print('F1 of CatBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
+    log.debug(classification_report(y_test,y_pred))
+    log.debug('Accuracy of CatBoost: '+ str(accuracy_score(y_test, y_pred)))
+    log.debug('Precision of CatBoost: '+ str(precision_score(y_test, y_pred, average='weighted')))
+    log.debug('Recall of CatBoost: '+ str(recall_score(y_test, y_pred, average='weighted')))
+    log.debug('Average F1 of CatBoost: '+ str(f1_score(y_test, y_pred, average='weighted')))
+    log.debug('F1 of CatBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     cb_f1=f1_score(y_test, y_pred, average=None)
 
     record_stats('CatBoostClassifier', classification_report(y_test, y_pred, output_dict=True))
@@ -216,7 +218,8 @@ def train_model(run_tag: str,
     plt.xlabel('y_pred')
     plt.ylabel('y_true')
     plt.title('catboost confusion matrix')
-    plt.savefig('./catboost_confusion_matrix.png')
+    confusion_matrices.update({'CatBoostClassifier': fig_to_base64(plt)})
+    # plt.savefig('./catboost_confusion_matrix.png')
 
 	#	# Proposed ensemble model: Leader Class and Confidence Decision Ensemble (LCCDE)
 
@@ -230,7 +233,7 @@ def train_model(run_tag: str,
         else:
             model.append(cb)
 
-    print(model)
+    log.debug(model)
 
 
     def LCCDE(X_test, y_test, m1, m2, m3):
@@ -311,27 +314,25 @@ def train_model(run_tag: str,
 
 	# Implementing LCCDE
     yt, yp = LCCDE(X_test, y_test, m1 = lg, m2 = xg, m3 = cb)
-    print(yt, yp)
+    log.debug(yt, yp)
 
 	# The performance of the proposed lCCDE model,
-    print('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
-    print('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted'))),
-    print('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
-    print('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
-    print('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
+    log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
+    log.debug('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted'))),
+    log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
+    log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
+    log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
 
-    pprint(OverallPerformance)
-    pprint(AttackPerformance)
     run = Run(
         id=str(uuid4()),
         run_tag=run_tag,
-        detection_model_name=DETECTION_MODEL_NAME,
+        detection_model_name=detection_model_name,
         learner_configuration=param_dict,
-        learner_performance_per_attack=AttackPerformance,
-        timestamp=str(TIMESTAMP),
-        confusion_matrices={},
+        learner_performance_per_attack=attack_performance,
+        timestamp=str(timestamp),
+        confusion_matrices=confusion_matrices,
         dataset=dataset,
-        learner_overalls=OverallPerformance,
+        learner_overalls=overall_performance,
         model_performance=PerfMetric(
             f1_score = f1_score(yt, yp, average='weighted'),
             precision = precision_score(yt, yp, average='weighted'),
@@ -339,5 +340,4 @@ def train_model(run_tag: str,
             support=0.0
         )
     )
-    pprint(run)
     return run

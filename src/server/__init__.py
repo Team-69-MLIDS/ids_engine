@@ -8,6 +8,7 @@ import json
 from functools import wraps
 from glob import glob
 import base64
+import time
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -169,7 +170,12 @@ def create_app(test_config=None):
                 
 
                     log.info('requested_params: ', param_dict)
+                before = time.time()
                 run = lccde.train_model(run_tag, param_dict,  dataset=dataset)
+                after = time.time()
+                dur = (after-before) * 1000
+                log.info(f'Training LCCDE took: {dur} ms')
+                return jsonify(run)
             elif model_name == 'mth':
                 # run = mth.train_model(run_tag, learner_configuration_map={})
                 pass
