@@ -81,7 +81,6 @@ paths:
               type: object
               properties:
                 model_name:
-                  required: true
                   type: string
                 runid: 
                   type: string
@@ -91,17 +90,11 @@ paths:
                 hyperparameters:
                   type: object
                   additionalProperties:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        parameter_name:
-                          type: string
-                          description: The key of the key-value pair
-                        value:
-                          type: string
-                          description: The value of the key-value pair
-                    
+                    type: object 
+                    additionalProperties:
+                      anyOf: 
+                        - type: integer
+                        - type: string
                     
       responses: 
         "200":
