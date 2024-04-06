@@ -322,12 +322,6 @@ def train_model(run_tag: str,
         timestamp=str(timestamp),
         confusion_matrices=confusion_matrices,
         dataset=dataset,
-        learner_overalls=overall_performance,
-        model_performance=PerfMetric(
-            f1_score = f1_score(yt, yp, average='weighted'),
-            precision = precision_score(yt, yp, average='weighted'),
-            recall = recall_score(yt, yp, average='weighted'),
-            support=0.0
+        learner_overalls=overall_performance
         )
-    )
     return run

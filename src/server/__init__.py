@@ -4,6 +4,7 @@ from textwrap import indent
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS, cross_origin
 from pandas.core import methods
+from sklearn.metrics import accuracy_score
 import structlog
 import json
 from functools import wraps
@@ -12,6 +13,9 @@ import base64
 import time
 from pprint import pprint
 from server.db import get_base_learners_for_model
+from dataclasses import asdict
+
+from server.data_helpers import OverallPerf, PerfMetric, Run
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -125,23 +129,77 @@ def create_app(test_config=None):
             sql = r'''
             SELECT * from Run;
             '''
-            runs = [{
-                'id': r[0],
-                'timestamp': r[1],
-                'run_tag':r[2],
-                'detection_model_name':r[3],
-            } for r in DB.execute(sql).fetchall()] 
+            runs = [
+                Run(
+                id= r[0],
+                timestamp= r[1],
+                run_tag=r[2],
+                detection_model_name=r[3],
+                learner_configuration=dict(),
+                learner_overalls=dict(),
+                learner_performance_per_attack=dict(),
+                dataset='', # TODO: run should store the dataset but doesnt have a column in the table
+                confusion_matrices=dict())
+             for r in DB.execute(sql).fetchall()] 
 
             for run in runs:
-                base_learners = get_base_learners_for_model()
-                # get all the learner configs for this run
-                sql = r'''
-                SELECT * from Learn
-                '''
+                base_learners = get_base_learners_for_model(DB, run.detection_model_name)
+                for base_learner in base_learners:
+                    # get all the learner configs for this run
+                    sql = rf'''
+                        SELECT LearnerConfig.*, Hyperparameter.name, Hyperparameter.datatype_hint
+                        FROM LearnerConfig
+                        JOIN Hyperparameter ON LearnerConfig.hyperparameter_id = Hyperparameter.id
+                        WHERE LearnerConfig.run_id = "{run.id}" and LearnerConfig.base_learner_name="{base_learner}";
+                    '''
+                    config = DB.execute(sql).fetchall()
+                    run.learner_configuration.update({
+                        base_learner: { str(p[5]): str(p[4]) for p in config}
+                    })
+
+                    # get all the per-attack metrics
+                    sql = rf'''
+                        SELECT *
+                        FROM AttackPerfMetric
+                        JOIN Run ON Run.id=AttackPerfMetric.run_id
+                        WHERE AttackPerfMetric.base_learner_name='{base_learner}' and Run.id='{run.id}';
+                    '''
+                    perfs = DB.execute(sql).fetchall()
+                    run.learner_performance_per_attack.update({
+                        base_learner: { str(p[6]): PerfMetric(
+                            support=p[1],
+                            f1_score=p[2],
+                            precision=p[3],
+                            recall=p[4],
+                        ) for p in perfs}
+
+                    })
+
+                    sql = rf'''
+                        SELECT *
+                        FROM OverallPerfMetric
+                        JOIN Run ON Run.id=OverallPerfMetric.run_id
+                        WHERE  OverallPerfMetric.base_learner_name='{base_learner}' and Run.id='{run.id}';
+                    '''
+                    overall_perf = DB.execute(sql).fetchone()
+                    run.learner_overalls.update({
+                        base_learner: OverallPerf(
+                            accuracy=overall_perf[3],
+                            macro_avg_precision=overall_perf[3],
+                            macro_avg_recall=overall_perf[4],
+                            macro_avg_f1_score=overall_perf[5],
+                            macro_avg_support=overall_perf[6],
+                            weighted_avg_precision=overall_perf[7],
+                            weighted_avg_recall=overall_perf[8],
+                            weighted_avg_f1_score=overall_perf[9],
+                            weighted_avg_support=overall_perf[10],
+                    )})
+
+
+                print(json.dumps(asdict(run), indent=4))
 
 
 
-            print(json.dumps(runs, indent=4))
             return jsonify(runs)
 
         elif request.method == 'POST':
@@ -208,7 +266,7 @@ def create_app(test_config=None):
 
     @app.route('/api/datasets',  methods=["GET"])
     def datasets(): 
-        return jsonify(glob('data/*.csv'))
+        return jsonify([s[5:] for s in glob('data/*.csv')])
 
     @app.route('/api/test_confusion_matrix')
     def be_confused():

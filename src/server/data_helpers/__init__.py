@@ -38,7 +38,6 @@ class Run:
     timestamp: str
     confusion_matrices: dict[str, str]
     dataset: str
-    model_performance: PerfMetric
 
     # `config_dict` is straight from request.json['hyperparameters']
     # and contains the id for storing in the db

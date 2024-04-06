@@ -82,11 +82,8 @@ def get_hyperparameters_for_learner(db: sqlite3.Connection, learner: str) -> lis
     return result
 
 
-@dataclass 
-class BaseLearner:
-    name: str
 
-def get_base_learners_for_model(db: sqlite3.Connection, model: str) -> list[BaseLearner]: 
+def get_base_learners_for_model(db: sqlite3.Connection, model: str) -> list[str]: 
     sql = rf'''
     SELECT base_learner_name from LearnsWith WHERE detection_model_name="{model}";
     '''
