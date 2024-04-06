@@ -82,6 +82,7 @@ def create_app(test_config=None):
                     response.update({base_learner_name: []})
 
                 response[base_learner_name].append({
+                    'id': p[0],
                     'name': p[2],
                     'description': p[1],
                     'optional': p[5],
@@ -97,9 +98,10 @@ def create_app(test_config=None):
     
         print(response)
 
-        params = con.execute('SELECT name, base_learner_name, description, optional, default_value, datatype_hint from hyperparameter;').fetchall()
+        params = con.execute('SELECT name, base_learner_name, description, optional, default_value, datatype_hint, id from hyperparameter;').fetchall()
         for p in params: 
             response[p[1]].append({
+                'id': p[6],
                 'name': p[0],
                 'description': p[2],
                 'optional': p[3],
@@ -172,6 +174,7 @@ def create_app(test_config=None):
                     log.info('requested_params: ', param_dict)
                 before = time.time()
                 run = lccde.train_model(run_tag, param_dict,  dataset=dataset)
+                run.store(db.get_db())
                 after = time.time()
                 dur = (after-before) * 1000
                 log.info(f'Training LCCDE took: {dur} ms')

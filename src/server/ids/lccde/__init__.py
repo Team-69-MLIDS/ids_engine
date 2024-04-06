@@ -1,7 +1,5 @@
 # This is based on `LCCDE_IDS_GlobeCom22.ipynb`
 from datetime import datetime
-import io
-from typing import Any
 from uuid import uuid4
 import warnings
 import matplotlib
@@ -15,7 +13,6 @@ import lightgbm as lgb
 import catboost as cbt
 import xgboost as xgb
 import time
-from dataclasses import dataclass, asdict
 from river import stream
 from statistics import mode
 from imblearn.over_sampling import SMOTE
@@ -23,9 +20,12 @@ import structlog
 import base64
 import json
 import logging
+from server.data_helpers import Run, PerfMetric, OverallPerf, fig_to_base64
 
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('lccde')
+
+
 
 
 BASE_LEARNERS = [
@@ -33,39 +33,8 @@ BASE_LEARNERS = [
 ]
 
 
-@dataclass
-class PerfMetric:
-    support: float
-    f1_score: float
-    precision: float
-    recall: float
-
-@dataclass
-class OverallPerf: 
-    macro_avg: float
-    weighted_avg: float
-    accuracy: float
-
-def fig_to_base64(figure): 
-    buf = io.BytesIO()
-    figure.savefig(buf)
-    buf.seek(0)
-    return base64.b64encode(buf.read()).decode('utf-8')
 
 
-
-@dataclass
-class Run: 
-    id: str
-    detection_model_name: str
-    run_tag: str
-    learner_performance_per_attack: dict[str, list[PerfMetric]]
-    learner_configuration: dict[str, dict[str, Any]]
-    learner_overalls: dict[str, OverallPerf]
-    timestamp: str
-    confusion_matrices: dict[str, str]
-    dataset: str
-    model_performance: PerfMetric
 
 
 def train_model(run_tag: str, 
@@ -322,8 +291,6 @@ def train_model(run_tag: str,
     log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
     log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
     log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
-
-    log.debug('yt and yp: ', yt, yp)
 
     run = Run(
         id=str(uuid4()),
