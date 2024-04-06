@@ -21,6 +21,7 @@ import base64
 import json
 import logging
 from server.data_helpers import Run, PerfMetric, OverallPerf, fig_to_base64
+import os 
 
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('lccde')
@@ -53,7 +54,11 @@ def train_model(run_tag: str,
     log.info('Running LCCD...')
     # load the data
     if dataset is not None: 
-        df = pd.read_csv(f'./data/{dataset}')
+        ds_path= (os.path.join(os.path.curdir, 'data', dataset))
+        if not os.path.exists(ds_path):
+            log.error('path does not exit: ', ds_path)
+            time.sleep(50000)
+        df = pd.read_csv(ds_path)
     else:
         df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
         dataset = './data/CICIDS2017_sample_km.csv'
