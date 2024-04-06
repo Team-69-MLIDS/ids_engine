@@ -23,7 +23,6 @@ import structlog
 import base64
 import json
 import logging
-matplotlib.set_loglevel('critical')
 
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('lccde')
@@ -73,7 +72,9 @@ def train_model(run_tag: str,
                 param_dict: dict, 
                 dataset: None|str) -> Run:
 
+    matplotlib.set_loglevel('critical')
     warnings.filterwarnings("ignore", category=UserWarning)
+
     detection_model_name = 'lccde'
     timestamp = datetime.now()
     confusion_matrices : dict[str, str] = dict()
@@ -314,7 +315,6 @@ def train_model(run_tag: str,
 
 	# Implementing LCCDE
     yt, yp = LCCDE(X_test, y_test, m1 = lg, m2 = xg, m3 = cb)
-    log.debug(yt, yp)
 
 	# The performance of the proposed lCCDE model,
     log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
@@ -322,6 +322,8 @@ def train_model(run_tag: str,
     log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
     log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
     log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
+
+    log.debug('yt and yp: ', yt, yp)
 
     run = Run(
         id=str(uuid4()),
