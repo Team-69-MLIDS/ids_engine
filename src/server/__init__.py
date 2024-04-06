@@ -11,6 +11,7 @@ from glob import glob
 import base64
 import time
 from pprint import pprint
+from server.db import get_base_learners_for_model
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -120,9 +121,28 @@ def create_app(test_config=None):
         DB = db.get_db()
         if request.method == 'GET':
             log.info('GET api/run')
-            runid = request.args.get('runid')
-            from_timestamp = request.args.get('from')
-            to_timestamp = request.args.get('till')
+            # get every run
+            sql = r'''
+            SELECT * from Run;
+            '''
+            runs = [{
+                'id': r[0],
+                'timestamp': r[1],
+                'run_tag':r[2],
+                'detection_model_name':r[3],
+            } for r in DB.execute(sql).fetchall()] 
+
+            for run in runs:
+                base_learners = get_base_learners_for_model()
+                # get all the learner configs for this run
+                sql = r'''
+                SELECT * from Learn
+                '''
+
+
+
+            print(json.dumps(runs, indent=4))
+            return jsonify(runs)
 
         elif request.method == 'POST':
             # extract the params from the request
@@ -158,12 +178,13 @@ def create_app(test_config=None):
                     param_dict.update({learner_name: ps})
 
                 before = time.time()
-                run = lccde.train_model(run_tag, param_dict, dataset=dataset)
-                run.store(db.get_db(), hyperparameters)
-                after = time.time()
-                dur = (after-before) * 1000
-                log.info(f'Training LCCDE took: {dur} ms')
-                return jsonify(run)
+                # run = lccde.train_model(run_tag, param_dict, dataset=dataset)
+                # run.store(db.get_db(), hyperparameters)
+                # after = time.time()
+                # dur = (after-before) * 1000
+                # log.info(f'Training LCCDE took: {dur} ms')
+
+                return jsonify('run')
             elif model_name == 'mth':
                 # run = mth.train_model(run_tag, learner_configuration_map={})
                 pass
