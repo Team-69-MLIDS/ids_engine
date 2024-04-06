@@ -120,15 +120,20 @@ def create_app(test_config=None):
         DB = db.get_db()
         if request.method == 'GET':
             log.info('GET api/run')
+            runid = request.args.get('runid')
+            from_timestamp = request.args.get('from')
+            to_timestamp = request.args.get('till')
+
         elif request.method == 'POST':
             # extract the params from the request
             run_tag = request.json['runid']
             model_name = request.json['model_name'].lower()
             hyperparameters = request.json['hyperparameters']
-            if 'dataset' in request.json:
-                dataset = request.json['dataset'] 
-            else: 
-                dataset = 'CICIDS2017_sample_km.csv' # dataset is optional 
+            # if 'dataset' in request.json:
+            #     dataset = request.json['dataset'] 
+            # else: 
+            #     dataset = 'CICIDS2017_sample_km.csv' # dataset is optional 
+            dataset = request.json['dataset'] or 'CICIDS2017_sample_km.csv' 
 
 
             if model_name == 'lccde':
@@ -146,7 +151,7 @@ def create_app(test_config=None):
                         hp = [hp for hp in truth_params if hp.name == param_name]
                         if len(hp) == 0:
                             return jsonify({'error': f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'}), 400
-                        # TODO: validate type
+                        # TODO: extra/validate type
 
                     # at this point we know all hyperparams are good to go
                     ps = { pname: p['v'] for pname, p in params.items() }

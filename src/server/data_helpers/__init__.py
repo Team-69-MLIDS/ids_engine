@@ -134,6 +134,9 @@ class Run:
 
         db.commit()
 
+    # # given the run 
+    # def retrieve_from_id() -> Run|None:
+
 
 def fig_to_base64(figure): 
     buf = io.BytesIO()
