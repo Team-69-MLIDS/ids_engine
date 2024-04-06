@@ -54,7 +54,7 @@ def train_model(run_tag: str,
     log.info('Running LCCD...')
     # load the data
     if dataset is not None: 
-        ds_path= (os.path.join(os.path.curdir, 'data', dataset))
+        ds_path= os.path.join(os.path.curdir, 'data', dataset)
         if not os.path.exists(ds_path):
             log.error('path does not exit: ', ds_path)
             time.sleep(50000)
