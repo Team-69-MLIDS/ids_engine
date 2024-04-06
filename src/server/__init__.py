@@ -178,13 +178,12 @@ def create_app(test_config=None):
                     param_dict.update({learner_name: ps})
 
                 before = time.time()
-                # run = lccde.train_model(run_tag, param_dict, dataset=dataset)
-                # run.store(db.get_db(), hyperparameters)
-                # after = time.time()
-                # dur = (after-before) * 1000
-                # log.info(f'Training LCCDE took: {dur} ms')
-
-                return jsonify('run')
+                run = lccde.train_model(run_tag, param_dict, dataset=dataset)
+                run.store(db.get_db(), hyperparameters)
+                after = time.time()
+                dur = (after-before) * 1000
+                log.info(f'Training LCCDE took: {dur} ms')
+                return jsonify(run)
             elif model_name == 'mth':
                 # run = mth.train_model(run_tag, learner_configuration_map={})
                 pass
