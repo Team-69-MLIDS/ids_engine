@@ -47,7 +47,7 @@ def train_model(run_tag: str,
     detection_model_name = 'lccde'
     timestamp = datetime.now()
     confusion_matrices : dict[str, str] = dict()
-    attack_performance : dict[str, list[PerfMetric]] = dict()
+    attack_performance : dict[str, dict[str, PerfMetric]] = dict()
     overall_performance : dict[str, OverallPerf] = dict()
 
     log.info('Running LCCD...')
@@ -86,22 +86,42 @@ def train_model(run_tag: str,
     y_pred = lg.predict(X_test)
 
     def record_stats(name, report): 
+        print(report)
         overall_performance.update({
             name: OverallPerf(
-                accuracy = report['accuracy'],
-                macro_avg= report['macro avg'],
-                weighted_avg = report['weighted avg'],
+                accuracy= report['accuracy'],
+                macro_avg_precision = report['macro avg']['precision'],
+                macro_avg_recall = report['macro avg']['recall'],
+                macro_avg_f1_score = report['macro avg']['f1-score'],
+                macro_avg_support = report['macro avg']['support'],
+                weighted_avg_precision = report['weighted avg']['precision'],
+                weighted_avg_recall = report['weighted avg']['recall'],
+                weighted_avg_f1_score = report['weighted avg']['f1-score'],
+                weighted_avg_support = report['weighted avg']['support'],
             )
         })
-        perfs = []
-        for i in range(6):
-            atk = report[f'{i}']
-            perfs.append(PerfMetric(
-                support=atk['support'],
-                f1_score=atk['f1-score'],
-                recall =atk['recall'],
-                precision =atk['precision'],
-            ))
+        perfs: dict[str, PerfMetric] = dict()
+        dont_read = [
+            'accuracy','macro avg','weighted avg'
+        ]
+        for class_name, stats in report.items(): 
+            if class_name not in dont_read:
+                print(class_name, stats)
+                perfs.update({class_name: PerfMetric(
+                    support=stats['support'],
+                    f1_score=stats['f1-score'],
+                    recall =stats['recall'],
+                    precision =stats['precision'],
+                )})
+
+        # for i in range(6):
+        #     atk = report[f'{i}']
+        #     perfs.append(PerfMetric(
+        #         support=atk['support'],
+        #         f1_score=atk['f1-score'],
+        #         recall =atk['recall'],
+        #         precision =atk['precision'],
+        #     ))
         attack_performance.update({name: perfs})
 
     record_stats('LGBMClassifier', classification_report(y_test, y_pred, output_dict=True))
@@ -150,6 +170,7 @@ def train_model(run_tag: str,
     log.debug('F1 of XGBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     xg_f1=f1_score(y_test, y_pred, average=None)
 
+    print(json.dumps(classification_report(y_test, y_pred, output_dict=True), indent=4))
     record_stats('XGBClassifier', classification_report(y_test, y_pred, output_dict=True))
     	# Plot the confusion matrix
     cm=confusion_matrix(y_test,y_pred)

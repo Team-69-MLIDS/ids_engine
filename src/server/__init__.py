@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from textwrap import indent
 from flask import Flask, jsonify, request, current_app, g 
 from flask_cors import CORS, cross_origin
 from pandas.core import methods
@@ -9,6 +10,7 @@ from functools import wraps
 from glob import glob
 import base64
 import time
+from pprint import pprint
 
 from server.ids import lccde
 structlog.stdlib.recreate_defaults()
@@ -138,43 +140,21 @@ def create_app(test_config=None):
                     # verify learners in request exist in db
                     if learner_name not in base_learners:
                         return jsonify({'error': f'`{learner_name} is not a base learner used in `{model_name}.'}), 400
-
-
-                    requested_params = {x['parameter_name']: x['value'] for x in params}
-                    print(requested_params)
                     truth_params = db.get_hyperparameters_for_learner(DB, learner_name)
-
-                    for param_name, value in requested_params.items():
+                    for param_name, pinfo in params.items():
                         # validate all hyperparameters exist in the db as an easy way to check obvious errors
                         hp = [hp for hp in truth_params if hp.name == param_name]
                         if len(hp) == 0:
                             return jsonify({'error': f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'}), 400
+                        # TODO: validate type
 
-                        hp = hp[0]
-                        # do basic type conversion, defaulting to string if there is not a simple/known type 
-                        old_val = value
+                    # at this point we know all hyperparams are good to go
+                    ps = { pname: p['v'] for pname, p in params.items() }
+                    param_dict.update({learner_name: ps})
 
-                        try:
-                            if hp.datatype_hint == 'int' or hp.datatype_hint == 'integer':
-                                requested_params[param_name] = int(value)
-                            elif hp.datatype_hint == 'float':
-                                requested_params[param_name] = float(value)
-                            elif hp.datatype_hint == 'bool':
-                                requested_params[param_name] = bool(value)
-                            elif hp.datatype_hint == 'str' or hp.datatype_hint == 'string':
-                                requested_params[param_name] = str(value)
-                            else:
-                                pass # its ok to leave as a string... hopefully!
-                        except ValueError: 
-                            # revert 
-                            requested_params[param_name] = str(old_val)
-                        param_dict.update({learner_name: requested_params})
-                
-
-                    log.info('requested_params: ', param_dict)
                 before = time.time()
-                run = lccde.train_model(run_tag, param_dict,  dataset=dataset)
-                run.store(db.get_db())
+                run = lccde.train_model(run_tag, param_dict, dataset=dataset)
+                run.store(db.get_db(), hyperparameters)
                 after = time.time()
                 dur = (after-before) * 1000
                 log.info(f'Training LCCDE took: {dur} ms')

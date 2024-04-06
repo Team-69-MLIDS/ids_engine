@@ -26,10 +26,6 @@ CREATE TABLE IF NOT EXISTS `LearnsWith`(
     FOREIGN KEY (`detection_model_name`) REFERENCES `DetectionModel` (`name`)
 );
 
-CREATE TABLE IF NOT EXISTS `AttackClassification`(
-    `name` TEXT NOT NULL,
-    PRIMARY KEY(`name`)
-);
 
 CREATE TABLE IF NOT EXISTS `ConfusionMatrix`(
     id UUID NOT NULL,
@@ -52,21 +48,35 @@ CREATE TABLE IF NOT EXISTS `Run`(
     FOREIGN KEY (`detection_model_name`) REFERENCES `DetectionModel` (`name`)
 );
 
-CREATE TABLE IF NOT EXISTS `PerfMetric`(
+CREATE TABLE IF NOT EXISTS `AttackPerfMetric`(
     id INT NOT NULL,
     support FLOAT,
     f1_score FLOAT,
     `precision` FLOAT,
-    accuracy FLOAT,
     recall FLOAT,
-    macro_avg FLOAT,
-    weighted_avg FLOAT,
-    `BaseLearner_name` TEXT NOT NULL,
-    `AttackClassification_id` INT NOT NULL,
+    base_learner_name TEXT NOT NULL,
+    attack_classification TEXT NOT NULL,
     run_id UUID NOT NULL,
     PRIMARY KEY(id),
-    FOREIGN KEY (`BaseLearner_name`) REFERENCES `BaseLearner` (`name`),
-    FOREIGN KEY (`AttackClassification_id`) REFERENCES `AttackClassification` (`name`),
+    FOREIGN KEY (`base_learner_name`) REFERENCES `BaseLearner` (`name`),
+    FOREIGN KEY (`run_id`) REFERENCES `Run` (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `OverallPerfMetric`(
+    id INT NOT NULL,
+    run_id UUID NOT NULL,
+    base_learner_name TEXT NOT NULL,
+    accuracy FLOAT,
+    macro_avg_precision FLOAT,
+    macro_avg_recall FLOAT,
+    macro_avg_f1_score FLOAT,
+    macro_avg_support FLOAT,
+    weighted_avg_precision FLOAT,
+    weighted_avg_recall FLOAT,
+    weighted_avg_f1_score FLOAT,
+    weighted_avg_support FLOAT,
+    PRIMARY KEY(id),
+    FOREIGN KEY (`base_learner_name`) REFERENCES `BaseLearner` (`name`),
     FOREIGN KEY (`run_id`) REFERENCES `Run` (`id`)
 );
 
@@ -88,9 +98,7 @@ CREATE TABLE IF NOT EXISTS `LearnerConfig`(
     hyperparameter_id UUID NOT NULL,    -- the parameter id
     base_learner_name TEXT NOT NULL,    -- the name of the base learner this config targets
     run_id UUID NOT NULL,               -- the run in which this this config entry was used
-    value TEXT,                         -- needs to be parsed back out. This is kind of a pain point in the design 
-    datatype_hint TEXT,                 -- a hint to aid in parsing the value. If null, leave as text or use some other hueristic to parse
-
+    value TEXT,                         
     PRIMARY KEY(config_id),
     FOREIGN KEY (`hyperparameter_id`) REFERENCES `Hyperparameter` (`id`),
     FOREIGN KEY (`base_learner_name`) REFERENCES `BaseLearner` (`name`)
@@ -98,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `LearnerConfig`(
 );
 
 
-INSERT OR IGNORE INTO AttackClassification(name) VALUES ("BENIGN"), ("Bot"), ("BruteForce"), ("DoS"), ("Infiltration"), ("PortScan"), ("WebAttack");
+-- INSERT OR IGNORE INTO AttackClassification(name) VALUES ("BENIGN"), ("Bot"), ("BruteForce"), ("DoS"), ("Infiltration"), ("PortScan"), ("WebAttack");
 INSERT OR IGNORE INTO BaseLearner(name) VALUES ("XGBClassifier"),("CatBoostClassifer"),("LGBMClassifer");
 INSERT OR IGNORE INTO DetectionModel(name) VALUES ("lccde"), ("mth"), ("treebased");
 -- INSERT OR IGNORE INTO Initialized(Initialized) (0);
