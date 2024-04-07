@@ -41,6 +41,8 @@ def init_db():
         next(reader, None) # skip header row
         
         hp_count = sum(1 for _ in reader)
+        xgboost_params.seek(0)
+        next(reader, None) # skip header row
         log.info(f'Importing {hp_count} hyperparameters...')
         for row in reader:
             base_learner_name = row[0]

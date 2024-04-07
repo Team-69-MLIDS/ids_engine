@@ -138,7 +138,7 @@ def create_app(test_config=None):
                 learner_configuration=dict(),
                 learner_overalls=dict(),
                 learner_performance_per_attack=dict(),
-                dataset='', # TODO: run should store the dataset but doesnt have a column in the table
+                dataset=r[4], # TODO: run should store the dataset but doesnt have a column in the table
                 confusion_matrices=dict())
              for r in DB.execute(sql).fetchall()] 
 
@@ -197,28 +197,14 @@ def create_app(test_config=None):
 
                     sql = rf'''
                         SELECT *
-                        FROM confusion_matrices 
-                        JOIN Run ON Run.id=OverallPerfMetric.run_id
-                        WHERE  OverallPerfMetric.base_learner_name='{base_learner}' and Run.id='{run.id}';
+                        FROM ConfusionMatrix
+                        JOIN Run ON Run.id= ConfusionMatrix.run_id
+                        WHERE ConfusionMatrix.base_learner_name='{base_learner}' and Run.id='{run.id}';
                     '''
-                    overall_perf = DB.execute(sql).fetchone()
-                    run.learner_overalls.update({
-                        base_learner: OverallPerf(
-                            accuracy=overall_perf[3],
-                            macro_avg_precision=overall_perf[3],
-                            macro_avg_recall=overall_perf[4],
-                            macro_avg_f1_score=overall_perf[5],
-                            macro_avg_support=overall_perf[6],
-                            weighted_avg_precision=overall_perf[7],
-                            weighted_avg_recall=overall_perf[8],
-                            weighted_avg_f1_score=overall_perf[9],
-                            weighted_avg_support=overall_perf[10],
-                    )})
-
-                print(json.dumps(asdict(run), indent=4))
-
-
-
+                    conf_mats = DB.execute(sql).fetchone()
+                    run.confusion_matrices.update({
+                        base_learner: conf_mats[4]
+                    })
             return jsonify(runs)
 
         elif request.method == 'POST':

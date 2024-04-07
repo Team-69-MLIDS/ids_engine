@@ -44,7 +44,7 @@ class Run:
     def store(self, db: sqlite3.Connection, config_dict: dict): 
         # store the Run
         sql = r'''
-        INSERT INTO Run(id, timestamp, run_tag, detection_model_name, dataset) VALUES(?, ?, ?, ?);
+        INSERT INTO Run(id, timestamp, run_tag, detection_model_name, dataset) VALUES(?, ?, ?, ?, ?);
         '''
         db.execute(sql, (
             self.id,
