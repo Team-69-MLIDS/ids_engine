@@ -195,6 +195,25 @@ def create_app(test_config=None):
                             weighted_avg_support=overall_perf[10],
                     )})
 
+                    sql = rf'''
+                        SELECT *
+                        FROM confusion_matrices 
+                        JOIN Run ON Run.id=OverallPerfMetric.run_id
+                        WHERE  OverallPerfMetric.base_learner_name='{base_learner}' and Run.id='{run.id}';
+                    '''
+                    overall_perf = DB.execute(sql).fetchone()
+                    run.learner_overalls.update({
+                        base_learner: OverallPerf(
+                            accuracy=overall_perf[3],
+                            macro_avg_precision=overall_perf[3],
+                            macro_avg_recall=overall_perf[4],
+                            macro_avg_f1_score=overall_perf[5],
+                            macro_avg_support=overall_perf[6],
+                            weighted_avg_precision=overall_perf[7],
+                            weighted_avg_recall=overall_perf[8],
+                            weighted_avg_f1_score=overall_perf[9],
+                            weighted_avg_support=overall_perf[10],
+                    )})
 
                 print(json.dumps(asdict(run), indent=4))
 

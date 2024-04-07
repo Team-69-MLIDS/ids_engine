@@ -44,13 +44,14 @@ class Run:
     def store(self, db: sqlite3.Connection, config_dict: dict): 
         # store the Run
         sql = r'''
-        INSERT INTO Run(id, timestamp, run_tag, detection_model_name) VALUES(?, ?, ?, ?);
+        INSERT INTO Run(id, timestamp, run_tag, detection_model_name, dataset) VALUES(?, ?, ?, ?);
         '''
         db.execute(sql, (
             self.id,
             self.timestamp, 
             self.run_tag,
-            self.detection_model_name
+            self.detection_model_name,
+            self.dataset
         ))
         
 
@@ -129,6 +130,24 @@ class Run:
                     self.id,
                 ))
                 print(learner, attack_class, json.dumps(asdict(perf), indent=4))
+
+        for learner, conf_mat in self.confusion_matrices.items():
+            db.execute(r'''
+            INSERT INTO ConfusionMatrix(
+                id,
+                run_id,
+                base_learner_name,
+                detection_model_name,
+                confusion_matrix_image
+            )
+            VALUES(?, ?,?,?,?);
+            ''', (
+                       str(uuid4()),
+                       self.id,
+                       learner,
+                       self.detection_model_name,
+                       conf_mat
+                       ))
 
 
         db.commit()

@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `Run`(
     timestamp TEXT NOT NULL, 
     run_tag TEXT,                       -- the user provided run id
     detection_model_name TEXT NOT NULL,
+    dataset TEXT,
     PRIMARY KEY (id),
     FOREIGN KEY (`detection_model_name`) REFERENCES `DetectionModel` (`name`)
 );
