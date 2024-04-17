@@ -56,11 +56,22 @@ def init_db():
     log.info('Imported hyperparameters.')
 
     log.info('Populating DetectionModel -> BaseLearner relation...')
+
     # populate LearnsWith relation
     for learner in lccde.BASE_LEARNERS: 
         db.execute(r'''
         INSERT OR IGNORE INTO LearnsWith (id, detection_model_name, base_learner_name) VALUES(?, ?, ?)
                    ''', (str(uuid4()), 'lccde', learner))
+    # populate LearnsWith relation
+    for learner in mth.BASE_LEARNERS: 
+        db.execute(r'''
+        INSERT OR IGNORE INTO LearnsWith (id, detection_model_name, base_learner_name) VALUES(?, ?, ?)
+                   ''', (str(uuid4()), 'mth', learner))
+
+    for learner in treebased.BASE_LEARNERS: 
+        db.execute(r'''
+        INSERT OR IGNORE INTO LearnsWith (id, detection_model_name, base_learner_name) VALUES(?, ?, ?)
+                   ''', (str(uuid4()), 'treebased', learner))
     db.commit()
     log.info('Populated DetectionModel -> BaseLearner relation.')
 

@@ -2,6 +2,8 @@ from docstring_parser import parse_from_object, parse
 from catboost import CatBoostClassifier
 import csv
 import re
+
+from sklearn.ensemble import RandomForestClassifier
 import docstrings
 import structlog
 
@@ -22,18 +24,27 @@ XGBOOST_IGNORE = [
 CSV_HEADER: list[str] = ['algorithm', 'parameter_name', 'typeinfo', 'default', 'description', 'optional'  ]
 
 ALGORITHM_NAMES = [
-        'CatBoostClassifier',
-        'LGBMClassifier',
-        'XGBClassifier',
-        ]
+    'CatBoostClassifier',
+    'LGBMClassifier',
+    'XGBClassifier', 
+    'RandomForestClassifier',
+    'DecisionTreeClassifier',
+    'ExtraTreesClassifier',
+]
 
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, ExtraTreeClassifier
 
-t = parse_from_object(DecisionTreeClassifier)
+t = parse_from_object(RandomForestClassifier)
 for p in t.params:
-    print('test:', p.arg_name)
+    good_types = ['int', 'float', 'str']
+    for g in good_types:
+        r = re.search(g, p.type_name)
+        type_name = p.type_name[r.start():r.end()] if r else 'str'
+        if r: 
+            break
+    print(p.arg_name, type_name, p.default)
 
-pass
+
 log.debug('Parsing hyperparameters')
 with open('hyperparams.csv', mode='w+', newline='') as csvfile: 
     csv_writer = csv.writer(csvfile)
@@ -96,6 +107,42 @@ with open('hyperparams.csv', mode='w+', newline='') as csvfile:
                 typestr = typestr[typematch.start()+1:typematch.end()-1]
         csv_writer.writerow(('XGBClassifier', p.arg_name, typestr or 'any', p.default or "No default", p.description or "No description", optional))
     log.info('Parsed XGBClassifier params.')
+
+    # write DecisionTreeClassifier params
+    log.info('Parsing DecisionTreeClassifier  params...')
+    t = parse_from_object(DecisionTreeClassifier)
+    for p in t.params:
+        good_types = ['int', 'float', 'str']
+        for g in good_types:
+            r = re.search(g, p.type_name)
+            type_name = p.type_name[r.start():r.end()] if r else 'str'
+            if r: 
+                break
+        csv_writer.writerow(('DecisionTreeClassifier', p.arg_name, type_name or 'str', p.default or "No default", p.description or "No description", True))
+
+    # write DecisionTreeClassifier params
+    log.info('Parsing ExtraTreeClassifier params...')
+    t = parse_from_object(ExtraTreeClassifier)
+    for p in t.params:
+        good_types = ['int', 'float', 'str']
+        for g in good_types:
+            r = re.search(g, p.type_name)
+            type_name = p.type_name[r.start():r.end()] if r else 'str'
+            if r: 
+                break
+        csv_writer.writerow(('ExtraTreeClassifier ', p.arg_name, type_name or 'str', p.default or "No default", p.description or "No description", True))
+
+    log.info('Parsing RandomForestClassifier params...')
+    t = parse_from_object(RandomForestClassifier)
+    for p in t.params:
+        good_types = ['int', 'float', 'str']
+        for g in good_types:
+            r = re.search(g, p.type_name)
+            type_name = p.type_name[r.start():r.end()] if r else 'str'
+            if r: 
+                break
+        csv_writer.writerow(('RandomForestClassifier', p.arg_name, type_name or 'str', p.default or "No default", p.description or "No description", True))
+
 log.info('Done.')
         
 
