@@ -129,6 +129,21 @@ def create_app(test_config=None):
             sql = r'''
             SELECT * from Run;
             '''
+            def try_convert_datatype(value, hint) -> str|int|float:
+                try:
+                    if hint == 'int' or hint == 'integer':
+                        return int(value)
+                    elif hint == 'float':
+                        return float(value)
+                    elif hint == 'bool':
+                        return bool(value)
+                    elif hint == 'str' or hint == 'string':
+                        return str(value)
+                    else:
+                        pass # its ok to leave as a string... hopefully!
+                except ValueError: 
+                    return str(value)
+
             runs = [
                 Run(
                 id= r[0],
@@ -147,14 +162,14 @@ def create_app(test_config=None):
                 for base_learner in base_learners:
                     # get all the learner configs for this run
                     sql = rf'''
-                        SELECT LearnerConfig.*, Hyperparameter.name, Hyperparameter.datatype_hint
+                        SELECT LearnerConfig.*, Hyperparameter.name, Hyperparameter.datatype_hint, Hyperparameter.id
                         FROM LearnerConfig
                         JOIN Hyperparameter ON LearnerConfig.hyperparameter_id = Hyperparameter.id
                         WHERE LearnerConfig.run_id = "{run.id}" and LearnerConfig.base_learner_name="{base_learner}";
                     '''
                     config = DB.execute(sql).fetchall()
                     run.learner_configuration.update({
-                        base_learner: { str(p[5]): str(p[4]) for p in config}
+                        base_learner: { str(p[5]): { "id": p[7], "v": try_convert_datatype(str(p[4]), p[6]) } for p in config}
                     })
 
                     # get all the per-attack metrics
@@ -224,12 +239,34 @@ def create_app(test_config=None):
                     if learner_name not in base_learners:
                         return jsonify({'error': f'`{learner_name} is not a base learner used in `{model_name}.'}), 400
                     truth_params = db.get_hyperparameters_for_learner(DB, learner_name)
+
                     for param_name, pinfo in params.items():
                         # validate all hyperparameters exist in the db as an easy way to check obvious errors
                         hp = [hp for hp in truth_params if hp.name == param_name]
                         if len(hp) == 0:
                             return jsonify({'error': f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'}), 400
-                        # TODO: extra/validate type
+                        hp = hp[0]
+                        value = pinfo['v']
+                        ######### NOTE(tristan): Hyperparameters that are sent from the frontend UI will already be type converted
+                        # because the front end uses type-informed input boxes 
+                        # try:
+                        #     if hp.datatype_hint == 'int' or hp.datatype_hint == 'integer':
+                        #         params[param_name]['v'] = int(value)
+                        #     elif hp.datatype_hint == 'float':
+                        #         params[param_name]['v'] = float(value)
+                        #     elif hp.datatype_hint == 'bool':
+                        #         params[param_name]['v'] = bool(value)
+                        #     elif hp.datatype_hint == 'str' or hp.datatype_hint == 'string':
+                        #         params[param_name]['v'] = str(value)
+                        #     else:
+                        #         pass # its ok to leave as a string... hopefully!
+                        # except ValueError: 
+                        #     # revert 
+                        #     params[param_name]['v'] = str(value)
+
+                        
+                    # print(json.dumps(params, indent=4))
+                        
 
                     # at this point we know all hyperparams are good to go
                     ps = { pname: p['v'] for pname, p in params.items() }
