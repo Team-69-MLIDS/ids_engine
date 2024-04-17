@@ -212,12 +212,7 @@ def create_app(test_config=None):
             run_tag = request.json['runid']
             model_name = request.json['model_name'].lower()
             hyperparameters = request.json['hyperparameters']
-            # if 'dataset' in request.json:
-            #     dataset = request.json['dataset'] 
-            # else: 
-            #     dataset = 'CICIDS2017_sample_km.csv' # dataset is optional 
             dataset = request.json['dataset'] or 'CICIDS2017_sample_km.csv' 
-
 
             if model_name == 'lccde':
                 # source of truth
