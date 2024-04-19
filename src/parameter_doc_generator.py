@@ -1,3 +1,6 @@
+### Team 69 - MLIDS sandbox
+### File author: Tristan Cox tmc190005@utdallas.edu
+### This script extracts hyperparameter documentation from the docstring from each library.
 from docstring_parser import parse_from_object, parse
 from catboost import CatBoostClassifier
 import csv
