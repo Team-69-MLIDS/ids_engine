@@ -309,10 +309,10 @@ def train_model(run_tag: str,
 
     print('YT AND YP', yt, yp)
 	# The performance of the proposed lCCDE model,
-    log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
-    log.debug('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted'))),
-    log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
-    log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
+    log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp)))
+    log.debug('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted')))
+    log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted')))
+    log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted')))
     log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
     record_stats('lccde', classification_report(yt, yp, output_dict=True))
     cm=confusion_matrix(yt, yp)

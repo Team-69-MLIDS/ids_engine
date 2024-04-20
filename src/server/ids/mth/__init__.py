@@ -360,7 +360,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 
@@ -384,7 +384,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # In[115]:
@@ -415,7 +415,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 
@@ -438,7 +438,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # In[105]:
@@ -469,7 +469,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # #### Hyperparameter optimization (HPO) of decision tree using Bayesian optimization with tree-based Parzen estimator (BO-TPE)
@@ -496,7 +496,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # In[102]:
@@ -527,7 +527,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # In[108]:
@@ -549,7 +549,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # In[109]:
@@ -618,7 +618,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # In[124]:
@@ -640,7 +640,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    # plt.show()
 
 
 # ## Anomaly-based IDS
