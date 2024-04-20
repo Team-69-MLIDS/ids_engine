@@ -254,7 +254,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    # plt.show()
+    # 
 
 
 
@@ -285,7 +285,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
 
 
 # In[14]:
@@ -315,7 +315,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
 
 
 # In[16]:
@@ -345,7 +345,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
 
 
 # In[18]:
@@ -413,7 +413,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
 
 
 # ## Feature Selection
@@ -569,7 +569,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
     record_stats('RandomForestClassifier', classification_report(y_true,y_predict, output_dict=True))
     confusion_matrices.update({'RandomForestClassifier': fig_to_base64(plt)})
 
@@ -599,7 +599,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
     record_stats('ExtraTreesClassifier', classification_report(y_true,y_predict, output_dict=True))
     confusion_matrices.update({'ExtraTreesClassifier': fig_to_base64(plt)})
 
@@ -629,7 +629,7 @@ def train_model(run_tag: str,
     sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
     plt.xlabel("y_pred")
     plt.ylabel("y_true")
-    plt.show()
+    
     record_stats('XGBClassifier', classification_report(y_true,y_predict, output_dict=True))
     confusion_matrices.update({'XGBClassifier': fig_to_base64(plt)})
 
