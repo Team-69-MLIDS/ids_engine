@@ -17,7 +17,7 @@ from dataclasses import asdict
 
 from server.data_helpers import OverallPerf, PerfMetric, Run
 
-from server.ids import lccde
+from server.ids import lccde, mth, treebased
 structlog.stdlib.recreate_defaults()
 log = structlog.get_logger('main')
 
@@ -117,6 +117,31 @@ def create_app(test_config=None):
                 })
             # print(p[0])
         return jsonify(response)
+
+    
+    # On success, returns a dict containing the valid and type-correct parameters 
+    # On failure, returns an error string to provide feedback to frontend
+    def validate_and_convert_params(connection: sqlite3.Connection, request_hyperparams: dict, model_name: str) -> dict|str:
+        base_learners = db.get_base_learners_for_model(connection, model_name)
+        param_dict = dict()
+        
+        for learner_name, params in request_hyperparams.items(): 
+            # verify learners in request exist in db
+            if learner_name not in base_learners:
+                return f'`{learner_name} is not a base learner used in `{model_name}.'
+
+            truth_params = db.get_hyperparameters_for_learner(connection, learner_name)
+
+            for param_name, pinfo in params.items():
+                # validate all hyperparameters exist in the db as an easy way to check obvious errors
+                hp = [hp for hp in truth_params if hp.name == param_name]
+                if len(hp) == 0: 
+                    return f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'
+                hp = hp[0]
+            # at this point we know all hyperparams are good to go
+            ps = { pname: p['v'] for pname, p in params.items() }
+            param_dict.update({learner_name: ps})
+        return param_dict
 
 
     @app.route('/api/run', methods=['GET', 'POST'])
@@ -222,49 +247,35 @@ def create_app(test_config=None):
                     })
             return jsonify(runs)
 
-        elif request.method == 'POST':
+        elif request.method == 'POST' and request.json:
             # extract the params from the request
             run_tag = request.json['runid']
             model_name = request.json['model_name'].lower()
-            hyperparameters = request.json['hyperparameters']
+            hyperparameters = request.json['hyperparameters'] or dict()
             dataset = request.json['dataset'] or 'CICIDS2017_sample_km.csv' 
 
+            param_dict: dict|str = validate_and_convert_params(DB, hyperparameters, model_name)
+            if type(param_dict) == str:
+                return jsonify({ 'error': param_dict}), 400
+
+            validated_params: dict = param_dict # concretize the type for the ide
+
             if model_name == 'lccde':
-                # source of truth
-                base_learners = db.get_base_learners_for_model(DB, 'lccde')
-                param_dict = dict()
-                
-                for learner_name, params in hyperparameters.items(): 
-                    # verify learners in request exist in db
-                    if learner_name not in base_learners:
-                        return jsonify({'error': f'`{learner_name} is not a base learner used in `{model_name}.'}), 400
-                    truth_params = db.get_hyperparameters_for_learner(DB, learner_name)
-
-                    for param_name, pinfo in params.items():
-                        # validate all hyperparameters exist in the db as an easy way to check obvious errors
-                        hp = [hp for hp in truth_params if hp.name == param_name]
-                        if len(hp) == 0:
-                            return jsonify({'error': f'`{param_name}` is not a valid hyperparameter for `{learner_name}`'}), 400
-                        hp = hp[0]
-                        value = pinfo['v']
-                        ######### NOTE(tristan): Hyperparameters that are sent from the frontend UI will already be type converted
-
-                        
-                    # print(json.dumps(params, indent=4))
-                        
-
-                    # at this point we know all hyperparams are good to go
-                    ps = { pname: p['v'] for pname, p in params.items() }
-                    param_dict.update({learner_name: ps})
-
                 before = time.time()
-                run = lccde.train_model(run_tag, param_dict, dataset=dataset)
+                run = lccde.train_model(run_tag, validated_params, dataset=dataset)
                 run.store(db.get_db(), hyperparameters)
                 after = time.time()
                 dur = (after-before) * 1000
                 log.info(f'Training LCCDE took: {dur} ms')
                 return jsonify(run)
             elif model_name == 'mth':
+                before = time.time()
+                run = mth.train_model(run_tag, validated_params, dataset=dataset)
+                run.store(db.get_db(), hyperparameters)
+                after = time.time()
+                dur = (after-before) * 1000
+                log.info(f'Training mth took: {dur} ms')
+                return jsonify(run)
                 # run = mth.train_model(run_tag, learner_configuration_map={})
                 pass
             elif model_name == 'treebased':

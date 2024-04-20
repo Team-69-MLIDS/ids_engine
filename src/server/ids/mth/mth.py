@@ -750,41 +750,6 @@ plt.ylabel("y_true")
 plt.show()
 
 
-# #### Hyperparameter optimization (HPO) of the stacking ensemble model (XGBoost) using Bayesian optimization with tree-based Parzen estimator (BO-TPE)
-# Based on the GitHub repo for HPO: https://github.com/LiYangHart/Hyperparameter-Optimization-of-Machine-Learning-Algorithms
-
-# In[123]:
-
-
-from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
-from sklearn.model_selection import cross_val_score, StratifiedKFold
-def objective(params):
-    params = {
-        'n_estimators': int(params['n_estimators']), 
-        'max_depth': int(params['max_depth']),
-        'learning_rate':  abs(float(params['learning_rate'])),
-
-    }
-    clf = xgb.XGBClassifier( **params)
-    clf.fit(x_train, y_train)
-    y_pred = clf.predict(x_test)
-    score = accuracy_score(y_test, y_pred)
-
-    return {'loss':-score, 'status': STATUS_OK }
-
-space = {
-    'n_estimators': hp.quniform('n_estimators', 10, 100, 5),
-    'max_depth': hp.quniform('max_depth', 4, 100, 1),
-    'learning_rate': hp.normal('learning_rate', 0.01, 0.9),
-}
-
-best = fmin(fn=objective,
-            space=space,
-            algo=tpe.suggest,
-            max_evals=20)
-print("XGBoost: Hyperopt estimated optimum {}".format(best))
-
-
 # In[124]:
 
 

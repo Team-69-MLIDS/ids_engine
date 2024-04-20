@@ -33,11 +33,6 @@ BASE_LEARNERS = [
         'XGBClassifier', 'LGBMClassifier', 'CatBoostClassifier'
 ]
 
-
-
-
-
-
 def train_model(run_tag: str, 
                 param_dict: dict, 
                 dataset: None|str) -> Run:
@@ -204,6 +199,7 @@ def train_model(run_tag: str,
     log.debug('Average F1 of CatBoost: '+ str(f1_score(y_test, y_pred, average='weighted')))
     log.debug('F1 of CatBoost for each type of attack: '+ str(f1_score(y_test, y_pred, average=None)))
     cb_f1=f1_score(y_test, y_pred, average=None)
+    print('\n\n\n\n\n CATBOOST YT AND YP', y_test,'='*20, y_pred)
 
     record_stats('CatBoostClassifier', classification_report(y_test, y_pred, output_dict=True))
 
@@ -302,21 +298,30 @@ def train_model(run_tag: str,
             else: 	# If two predicted classes are the same and the other one is different
                 n = mode([y_pred1,y_pred2,y_pred3]) 	# Find the predicted class with the majority vote
                 y_pred = model[n].predict(xi2.reshape(1, -1)) 	# Use the predicted class of the leader model as the final prediction class
-                y_pred = int(y_pred[0]) 
+                y_pred = y_pred[0]
 
             yt.append(yi)
             yp.append(y_pred) 	# Save the predicted classes for all tested samples
-            return yt, yp
+        return yt, yp
 
 	# Implementing LCCDE
     yt, yp = LCCDE(X_test, y_test, m1 = lg, m2 = xg, m3 = cb)
 
+    print('YT AND YP', yt, yp)
 	# The performance of the proposed lCCDE model,
     log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
     log.debug('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted'))),
     log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
     log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
     log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
+    record_stats('lccde', classification_report(yt, yp, output_dict=True))
+    cm=confusion_matrix(yt, yp)
+    f,ax=plt.subplots(figsize=(5,5))
+    sns.heatmap(cm, annot=True, linewidth=0.5, linecolor='red', fmt='.0f', ax=ax)
+    plt.xlabel('y_pred')
+    plt.ylabel('y_true')
+    plt.title('lccde confusion matrix')
+    confusion_matrices.update({'lccde': fig_to_base64(plt)})
 
     run = Run(
         id=str(uuid4()),
