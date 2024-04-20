@@ -1023,6 +1023,7 @@ from sklearn import metrics
 
 
 def CL_kmeans(X_train, X_test, y_train, y_test,n,b=100):
+    print("\n=====WE IN CL_kmeans=====\n")
     km_cluster = MiniBatchKMeans(n_clusters=n,batch_size=b)
     result = km_cluster.fit_predict(X_train)
     result2 = km_cluster.predict(X_test)

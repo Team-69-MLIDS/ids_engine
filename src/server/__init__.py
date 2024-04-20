@@ -276,11 +276,11 @@ def create_app(test_config=None):
                 dur = (after-before) * 1000
                 log.info(f'Training mth took: {dur} ms')
                 return jsonify(run)
-                # run = mth.train_model(run_tag, learner_configuration_map={})
-                pass
             elif model_name == 'treebased':
-                # run = treebased.train_model(run_tag, learner_configuration_map={})
-                pass
+                run = treebased.train_model(run_tag, validated_params, dataset=dataset)
+                run.store(db.get_db(), hyperparameters)
+
+                return jsonify(run)
 
 
             # TODO(tristan): store the `run` 
