@@ -50,6 +50,7 @@ def train_model(run_tag: str,
     # load the data
     if dataset is not None: 
         ds_path= os.path.join(os.path.curdir, 'data', dataset)
+        print('path: ', ds_path)
         if not os.path.exists(ds_path):
             log.error('path does not exit: ', ds_path)
             time.sleep(50000)
@@ -298,7 +299,7 @@ def train_model(run_tag: str,
             else: 	# If two predicted classes are the same and the other one is different
                 n = mode([y_pred1,y_pred2,y_pred3]) 	# Find the predicted class with the majority vote
                 y_pred = model[n].predict(xi2.reshape(1, -1)) 	# Use the predicted class of the leader model as the final prediction class
-                y_pred = y_pred[0]
+                y_pred = int(y_pred[0])
 
             yt.append(yi)
             yp.append(y_pred) 	# Save the predicted classes for all tested samples
@@ -309,11 +310,11 @@ def train_model(run_tag: str,
 
     print('YT AND YP', yt, yp)
 	# The performance of the proposed lCCDE model,
-    log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp)))
-    log.debug('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted')))
-    log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted')))
-    log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted')))
-    log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None)))
+    log.debug('Accuracy of LCCDE: '+ str(accuracy_score(yt, yp))),
+    log.debug('Precision of LCCDE: '+ str(precision_score(yt, yp, average='weighted'))),
+    log.debug('Recall of LCCDE: '+ str(recall_score(yt, yp, average='weighted'))),
+    log.debug('Average F1 of LCCDE: '+ str(f1_score(yt, yp, average='weighted'))),
+    log.debug('F1 of LCCDE for each type of attack: '+ str(f1_score(yt, yp, average=None))),
     record_stats('lccde', classification_report(yt, yp, output_dict=True))
     cm=confusion_matrix(yt, yp)
     f,ax=plt.subplots(figsize=(5,5))

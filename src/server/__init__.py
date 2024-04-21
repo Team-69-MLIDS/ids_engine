@@ -184,6 +184,57 @@ def create_app(test_config=None):
 
             for run in runs:
                 base_learners = get_base_learners_for_model(DB, run.detection_model_name)
+                # get the detection models attack, overall, and confusion matrix
+                # get all the per-attack metrics
+                sql = rf'''
+                    SELECT *
+                    FROM AttackPerfMetric
+                    JOIN Run ON Run.id=AttackPerfMetric.run_id
+                    WHERE AttackPerfMetric.base_learner_name='{run.detection_model_name}' and Run.id='{run.id}';
+                '''
+                perfs = DB.execute(sql).fetchall()
+                run.learner_performance_per_attack.update({
+                    run.detection_model_name: { 
+                        str(p[6]): PerfMetric(
+                        support=p[1],
+                        f1_score=p[2],
+                        precision=p[3],
+                        recall=p[4],
+                    ) for p in perfs}
+                })
+
+                sql = rf'''
+                    SELECT *
+                    FROM OverallPerfMetric
+                    JOIN Run ON Run.id=OverallPerfMetric.run_id
+                    WHERE  OverallPerfMetric.base_learner_name='{run.detection_model_name}' and Run.id='{run.id}';
+                '''
+                overall_perf = DB.execute(sql).fetchone()
+                print(overall_perf, run.detection_model_name)
+                run.learner_overalls.update({
+                    run.detection_model_name: OverallPerf(
+                        accuracy=overall_perf[3],
+                        macro_avg_precision=overall_perf[3],
+                        macro_avg_recall=overall_perf[4],
+                        macro_avg_f1_score=overall_perf[5],
+                        macro_avg_support=overall_perf[6],
+                        weighted_avg_precision=overall_perf[7],
+                        weighted_avg_recall=overall_perf[8],
+                        weighted_avg_f1_score=overall_perf[9],
+                        weighted_avg_support=overall_perf[10],
+                )})
+
+                sql = rf'''
+                    SELECT *
+                    FROM ConfusionMatrix
+                    JOIN Run ON Run.id= ConfusionMatrix.run_id
+                    WHERE ConfusionMatrix.base_learner_name='{run.detection_model_name}' and Run.id='{run.id}';
+                '''
+                conf_mats = DB.execute(sql).fetchone()
+                run.confusion_matrices.update({
+                    run.detection_model_name: conf_mats[4]
+                })
+
                 for base_learner in base_learners:
                     # get all the learner configs for this run
                     sql = rf'''
