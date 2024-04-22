@@ -47,17 +47,18 @@ def train_model(run_tag: str,
     overall_performance : dict[str, OverallPerf] = dict()
 
     log.info('Running LCCD...')
-    # load the data
-    if dataset is not None: 
-        ds_path= os.path.join(os.path.curdir, 'data', dataset)
-        print('path: ', ds_path)
-        if not os.path.exists(ds_path):
-            log.error('path does not exit: ', ds_path)
-            time.sleep(50000)
-        df = pd.read_csv(ds_path)
-    else:
-        df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
-        dataset = './data/CICIDS2017_sample_km.csv'
+    # # load the data
+    # if dataset is not None: 
+    #     ds_path= os.path.join(os.path.curdir, 'data', dataset)
+    #     print('path: ', ds_path)
+    #     if not os.path.exists(ds_path):
+    #         log.error('path does not exit: ', ds_path)
+    #         time.sleep(50000)
+    #     df = pd.read_csv(ds_path)
+    # else:
+    df = pd.read_csv('./data/CICIDS2017_sample_km.csv')
+    dataset = dataset
+    # dataset = './data/CICIDS2017_sample_km.csv'
 
     log.debug(df)
 
