@@ -180,7 +180,7 @@ def create_app(test_config=None):
                 learner_performance_per_attack=dict(),
                 dataset=r[4], # TODO: run should store the dataset but doesnt have a column in the table
                 confusion_matrices=dict())
-             for r in DB.execute(sql).fetchall()] 
+            for r in DB.execute(sql).fetchall()] 
 
             for run in runs:
                 base_learners = get_base_learners_for_model(DB, run.detection_model_name)
@@ -276,15 +276,15 @@ def create_app(test_config=None):
                     overall_perf = DB.execute(sql).fetchone()
                     run.learner_overalls.update({
                         base_learner: OverallPerf(
-                            accuracy=overall_perf[3],
-                            macro_avg_precision=overall_perf[3],
-                            macro_avg_recall=overall_perf[4],
-                            macro_avg_f1_score=overall_perf[5],
-                            macro_avg_support=overall_perf[6],
-                            weighted_avg_precision=overall_perf[7],
-                            weighted_avg_recall=overall_perf[8],
-                            weighted_avg_f1_score=overall_perf[9],
-                            weighted_avg_support=overall_perf[10],
+                        accuracy=overall_perf[3],
+                        macro_avg_precision=overall_perf[4],
+                        macro_avg_recall=overall_perf[5],
+                        macro_avg_f1_score=overall_perf[6],
+                        macro_avg_support=overall_perf[7],
+                        weighted_avg_precision=overall_perf[8],
+                        weighted_avg_recall=overall_perf[9],
+                        weighted_avg_f1_score=overall_perf[10],
+                        weighted_avg_support=overall_perf[11],
                     )})
 
                     sql = rf'''
