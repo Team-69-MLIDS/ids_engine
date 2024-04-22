@@ -631,16 +631,19 @@ DecisionTreeClassifier,tree_,str,No default,"The underlying Tree object. Please 
 ``help(sklearn.tree._tree.Tree)`` for attributes of Tree object and
 :ref:`sphx_glr_auto_examples_tree_plot_unveil_tree_structure.py`
 for basic usage of these attributes.",True
-ExtraTreeClassifier ,criterion,str,No default,"The function to measure the quality of a split. Supported criteria are
+ExtraTreesClassifier,n_estimators,int,value,"The number of trees in the forest.
+
+.. versionchanged:: 0.22
+   The default value of ``n_estimators`` changed from 10 to 100
+   in 0.22.",True
+ExtraTreesClassifier,criterion,str,No default,"The function to measure the quality of a split. Supported criteria are
 ""gini"" for the Gini impurity and ""log_loss"" and ""entropy"" both for the
-Shannon information gain, see :ref:`tree_mathematical_formulation`.",True
-ExtraTreeClassifier ,splitter,str,No default,"The strategy used to choose the split at each node. Supported
-strategies are ""best"" to choose the best split and ""random"" to choose
-the best random split.",True
-ExtraTreeClassifier ,max_depth,int,No default,"The maximum depth of the tree. If None, then nodes are expanded until
+Shannon information gain, see :ref:`tree_mathematical_formulation`.
+Note: This parameter is tree-specific.",True
+ExtraTreesClassifier,max_depth,int,No default,"The maximum depth of the tree. If None, then nodes are expanded until
 all leaves are pure or until all leaves contain less than
 min_samples_split samples.",True
-ExtraTreeClassifier ,min_samples_split,int,No default,"The minimum number of samples required to split an internal node:
+ExtraTreesClassifier,min_samples_split,int,No default,"The minimum number of samples required to split an internal node:
 
 - If int, then consider `min_samples_split` as the minimum number.
 - If float, then `min_samples_split` is a fraction and
@@ -649,7 +652,7 @@ ExtraTreeClassifier ,min_samples_split,int,No default,"The minimum number of sam
 
 .. versionchanged:: 0.18
    Added float values for fractions.",True
-ExtraTreeClassifier ,min_samples_leaf,int,No default,"The minimum number of samples required to be at a leaf node.
+ExtraTreesClassifier,min_samples_leaf,int,No default,"The minimum number of samples required to be at a leaf node.
 A split point at any depth will only be considered if it leaves at
 least ``min_samples_leaf`` training samples in each of the left and
 right branches.  This may have the effect of smoothing the model,
@@ -662,15 +665,15 @@ especially in regression.
 
 .. versionchanged:: 0.18
    Added float values for fractions.",True
-ExtraTreeClassifier ,min_weight_fraction_leaf,float,No default,"The minimum weighted fraction of the sum total of weights (of all
+ExtraTreesClassifier,min_weight_fraction_leaf,float,No default,"The minimum weighted fraction of the sum total of weights (of all
 the input samples) required to be at a leaf node. Samples have
 equal weight when sample_weight is not provided.",True
-ExtraTreeClassifier ,max_features,int,of,"The number of features to consider when looking for the best split:
+ExtraTreesClassifier,max_features,int,of,"The number of features to consider when looking for the best split:
 
 - If int, then consider `max_features` features at each split.
 - If float, then `max_features` is a fraction and
-  `max(1, int(max_features * n_features_in_))` features are considered at
-  each split.
+  `max(1, int(max_features * n_features_in_))` features are considered at each
+  split.
 - If ""sqrt"", then `max_features=sqrt(n_features)`.
 - If ""log2"", then `max_features=log2(n_features)`.
 - If None, then `max_features=n_features`.
@@ -681,12 +684,10 @@ ExtraTreeClassifier ,max_features,int,of,"The number of features to consider whe
 Note: the search for a split does not stop until at least one
 valid partition of the node samples is found, even if it requires to
 effectively inspect more than ``max_features`` features.",True
-ExtraTreeClassifier ,random_state,int,No default,"Used to pick randomly the `max_features` used at each split.
-See :term:`Glossary <random_state>` for details.",True
-ExtraTreeClassifier ,max_leaf_nodes,int,No default,"Grow a tree with ``max_leaf_nodes`` in best-first fashion.
+ExtraTreesClassifier,max_leaf_nodes,int,No default,"Grow trees with ``max_leaf_nodes`` in best-first fashion.
 Best nodes are defined as relative reduction in impurity.
 If None then unlimited number of leaf nodes.",True
-ExtraTreeClassifier ,min_impurity_decrease,float,No default,"A node will be split if this split induces a decrease of the impurity
+ExtraTreesClassifier,min_impurity_decrease,float,No default,"A node will be split if this split induces a decrease of the impurity
 greater than or equal to this value.
 
 The weighted impurity decrease equation is the following::
@@ -702,8 +703,33 @@ left child, and ``N_t_R`` is the number of samples in the right child.
 if ``sample_weight`` is passed.
 
 .. versionadded:: 0.19",True
-ExtraTreeClassifier ,class_weight,str,No default,"Weights associated with classes in the form ``{class_label: weight}``.
-If None, all classes are supposed to have weight one. For
+ExtraTreesClassifier,bootstrap,str,No default,"Whether bootstrap samples are used when building trees. If False, the
+whole dataset is used to build each tree.",True
+ExtraTreesClassifier,oob_score,str,No default,"Whether to use out-of-bag samples to estimate the generalization score.
+By default, :func:`~sklearn.metrics.accuracy_score` is used.
+Provide a callable with signature `metric(y_true, y_pred)` to use a
+custom metric. Only available if `bootstrap=True`.",True
+ExtraTreesClassifier,n_jobs,int,No default,"The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,
+:meth:`decision_path` and :meth:`apply` are all parallelized over the
+trees. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`
+context. ``-1`` means using all processors. See :term:`Glossary
+<n_jobs>` for more details.",True
+ExtraTreesClassifier,random_state,int,No default,"Controls 3 sources of randomness:
+
+- the bootstrapping of the samples used when building trees
+  (if ``bootstrap=True``)
+- the sampling of the features to consider when looking for the best
+  split at each node (if ``max_features < n_features``)
+- the draw of the splits for each of the `max_features`
+
+See :term:`Glossary <random_state>` for details.",True
+ExtraTreesClassifier,verbose,int,No default,Controls the verbosity when fitting and predicting.,True
+ExtraTreesClassifier,warm_start,str,No default,"When set to ``True``, reuse the solution of the previous call to fit
+and add more estimators to the ensemble, otherwise, just fit a whole
+new forest. See :term:`Glossary <warm_start>` and
+:ref:`gradient_boosting_warm_start` for details.",True
+ExtraTreesClassifier,class_weight,str,No default,"Weights associated with classes in the form ``{class_label: weight}``.
+If not given, all classes are supposed to have weight one. For
 multi-output problems, a list of dicts can be provided in the same
 order as the columns of y.
 
@@ -717,20 +743,33 @@ The ""balanced"" mode uses the values of y to automatically adjust
 weights inversely proportional to class frequencies in the input data
 as ``n_samples / (n_classes * np.bincount(y))``
 
+The ""balanced_subsample"" mode is the same as ""balanced"" except that
+weights are computed based on the bootstrap sample for every tree
+grown.
+
 For multi-output, the weights of each column of y will be multiplied.
 
 Note that these weights will be multiplied with sample_weight (passed
 through the fit method) if sample_weight is specified.",True
-ExtraTreeClassifier ,ccp_alpha,float,No default,"Complexity parameter used for Minimal Cost-Complexity Pruning. The
+ExtraTreesClassifier,ccp_alpha,float,No default,"Complexity parameter used for Minimal Cost-Complexity Pruning. The
 subtree with the largest cost complexity that is smaller than
 ``ccp_alpha`` will be chosen. By default, no pruning is performed. See
 :ref:`minimal_cost_complexity_pruning` for details.
 
 .. versionadded:: 0.22",True
-ExtraTreeClassifier ,monotonic_cst,int,No default,"Indicates the monotonicity constraint to enforce on each feature.
-  - 1: monotonic increase
+ExtraTreesClassifier,max_samples,int,No default,"If bootstrap is True, the number of samples to draw from X
+to train each base estimator.
+
+- If None (default), then draw `X.shape[0]` samples.
+- If int, then draw `max_samples` samples.
+- If float, then draw `max_samples * X.shape[0]` samples. Thus,
+  `max_samples` should be in the interval `(0.0, 1.0]`.
+
+.. versionadded:: 0.22",True
+ExtraTreesClassifier,monotonic_cst,int,No default,"Indicates the monotonicity constraint to enforce on each feature.
+  - 1: monotonically increasing
   - 0: no constraint
-  - -1: monotonic decrease
+  - -1: monotonically decreasing
 
 If monotonic_cst is None, no constraints are applied.
 
@@ -744,13 +783,17 @@ The constraints hold over the probability of the positive class.
 Read more in the :ref:`User Guide <monotonic_cst_gbdt>`.
 
 .. versionadded:: 1.4",True
-ExtraTreeClassifier ,classes_,str,No default,"The classes labels (single output problem),
-or a list of arrays of class labels (multi-output problem).",True
-ExtraTreeClassifier ,max_features_,int,No default,The inferred value of max_features.,True
-ExtraTreeClassifier ,n_classes_,int,No default,"The number of classes (for single output problems),
-or a list containing the number of classes for each
-output (for multi-output problems).",True
-ExtraTreeClassifier ,feature_importances_,str,No default,"The impurity-based feature importances.
+ExtraTreesClassifier,estimator_,str,No default,"The child estimator template used to create the collection of fitted
+sub-estimators.
+
+.. versionadded:: 1.2
+   `base_estimator_` was renamed to `estimator_`.",True
+ExtraTreesClassifier,estimators_,str,No default,The collection of fitted sub-estimators.,True
+ExtraTreesClassifier,classes_,str,No default,"The classes labels (single output problem), or a list of arrays of
+class labels (multi-output problem).",True
+ExtraTreesClassifier,n_classes_,int,No default,"The number of classes (single output problem), or a list containing the
+number of classes for each output (multi-output problem).",True
+ExtraTreesClassifier,feature_importances_,str,No default,"The impurity-based feature importances.
 The higher, the more important the feature.
 The importance of a feature is computed as the (normalized)
 total reduction of the criterion brought by that feature.  It is also
@@ -759,18 +802,25 @@ known as the Gini importance.
 Warning: impurity-based feature importances can be misleading for
 high cardinality features (many unique values). See
 :func:`sklearn.inspection.permutation_importance` as an alternative.",True
-ExtraTreeClassifier ,n_features_in_,int,No default,"Number of features seen during :term:`fit`.
+ExtraTreesClassifier,n_features_in_,int,No default,"Number of features seen during :term:`fit`.
 
 .. versionadded:: 0.24",True
-ExtraTreeClassifier ,feature_names_in_,str,No default,"Names of features seen during :term:`fit`. Defined only when `X`
+ExtraTreesClassifier,feature_names_in_,str,No default,"Names of features seen during :term:`fit`. Defined only when `X`
 has feature names that are all strings.
 
 .. versionadded:: 1.0",True
-ExtraTreeClassifier ,n_outputs_,int,No default,The number of outputs when ``fit`` is performed.,True
-ExtraTreeClassifier ,tree_,str,No default,"The underlying Tree object. Please refer to
-``help(sklearn.tree._tree.Tree)`` for attributes of Tree object and
-:ref:`sphx_glr_auto_examples_tree_plot_unveil_tree_structure.py`
-for basic usage of these attributes.",True
+ExtraTreesClassifier,n_outputs_,int,No default,The number of outputs when ``fit`` is performed.,True
+ExtraTreesClassifier,oob_score_,float,No default,"Score of the training dataset obtained using an out-of-bag estimate.
+This attribute exists only when ``oob_score`` is True.",True
+ExtraTreesClassifier,oob_decision_function_,str,No default,"Decision function computed with out-of-bag estimate on the training
+set. If n_estimators is small it might be possible that a data point
+was never left out during the bootstrap. In this case,
+`oob_decision_function_` might contain NaN. This attribute exists
+only when ``oob_score`` is True.",True
+ExtraTreesClassifier,estimators_samples_,str,No default,"The subset of drawn samples (i.e., the in-bag samples) for each base
+estimator. Each subset is defined by an array of the indices selected.
+
+.. versionadded:: 1.4",True
 RandomForestClassifier,n_estimators,int,value,"The number of trees in the forest.
 
 .. versionchanged:: 0.22

@@ -6,7 +6,7 @@ from catboost import CatBoostClassifier
 import csv
 import re
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier,ExtraTreesClassifier
 import docstrings
 import structlog
 
@@ -124,8 +124,8 @@ with open('hyperparams.csv', mode='w+', newline='') as csvfile:
         csv_writer.writerow(('DecisionTreeClassifier', p.arg_name, type_name or 'str', p.default or "No default", p.description or "No description", True))
 
     # write DecisionTreeClassifier params
-    log.info('Parsing ExtraTreeClassifier params...')
-    t = parse_from_object(ExtraTreeClassifier)
+    log.info('Parsing ExtraTreesClassifier params...')
+    t = parse_from_object(ExtraTreesClassifier)
     for p in t.params:
         good_types = ['int', 'float', 'str']
         for g in good_types:
@@ -133,7 +133,7 @@ with open('hyperparams.csv', mode='w+', newline='') as csvfile:
             type_name = p.type_name[r.start():r.end()] if r else 'str'
             if r: 
                 break
-        csv_writer.writerow(('ExtraTreeClassifier ', p.arg_name, type_name or 'str', p.default or "No default", p.description or "No description", True))
+        csv_writer.writerow(('ExtraTreesClassifier', p.arg_name, type_name or 'str', p.default or "No default", p.description or "No description", True))
 
     log.info('Parsing RandomForestClassifier params...')
     t = parse_from_object(RandomForestClassifier)

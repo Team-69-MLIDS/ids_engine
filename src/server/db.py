@@ -57,10 +57,12 @@ def init_db():
 
     log.info('Populating DetectionModel -> BaseLearner relation...')
 
+    # fill the baselearner table
+
     # populate LearnsWith relation
     for learner in lccde.BASE_LEARNERS: 
         db.execute(r'''
-        INSERT OR IGNORE INTO LearnsWith (id, detection_model_name, base_learner_name) VALUES(?, ?, ?)
+        INSERT OR IGNORE INTO LearnsWith (id, detection_model_name, base_learner_name) VALUES(?, ?, ?);
                    ''', (str(uuid4()), 'lccde', learner))
     # populate LearnsWith relation
     for learner in mth.BASE_LEARNERS: 
