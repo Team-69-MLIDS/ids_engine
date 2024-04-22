@@ -210,18 +210,19 @@ def create_app(test_config=None):
                     WHERE  OverallPerfMetric.base_learner_name='{run.detection_model_name}' and Run.id='{run.id}';
                 '''
                 overall_perf = DB.execute(sql).fetchone()
-                print(overall_perf, run.detection_model_name)
+                print(*overall_perf, run.detection_model_name)
+                
                 run.learner_overalls.update({
                     run.detection_model_name: OverallPerf(
                         accuracy=overall_perf[3],
-                        macro_avg_precision=overall_perf[3],
-                        macro_avg_recall=overall_perf[4],
-                        macro_avg_f1_score=overall_perf[5],
-                        macro_avg_support=overall_perf[6],
-                        weighted_avg_precision=overall_perf[7],
-                        weighted_avg_recall=overall_perf[8],
-                        weighted_avg_f1_score=overall_perf[9],
-                        weighted_avg_support=overall_perf[10],
+                        macro_avg_precision=overall_perf[4],
+                        macro_avg_recall=overall_perf[5],
+                        macro_avg_f1_score=overall_perf[6],
+                        macro_avg_support=overall_perf[7],
+                        weighted_avg_precision=overall_perf[8],
+                        weighted_avg_recall=overall_perf[9],
+                        weighted_avg_f1_score=overall_perf[10],
+                        weighted_avg_support=overall_perf[11],
                 )})
 
                 sql = rf'''
